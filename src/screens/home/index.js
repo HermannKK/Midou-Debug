@@ -35,19 +35,21 @@ class Home extends React.Component {
   }
 
   componentDidMount(){
-    const channel = new firebase.notifications.Android.Channel('MidouV1.0r1', 'Midou', firebase.notifications.Android.Importance.Max).setDescription('Midou');
+    const channel = new firebase.notifications.Android.Channel('Midou', 'Midou', firebase.notifications.Android.Importance.Max).setDescription('Midou');
     firebase.notifications().android.createChannel(channel);
     this.removeNotificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification) => {
       console.log(notification);
     });
     this.removeNotificationListener = firebase.notifications().onNotification((notification) => {
-      const _notification = new firebase.notifications.Notification( {sound: 'default',show_in_foreground: true})
+      const _notification = new firebase.notifications.Notification({sound: 'default',show_in_foreground: true})
       .setNotificationId('notificationId')
       .setTitle(notification.title)
       .setBody(notification.body)
+      .android.setBadgeIconType(firebase.notifications.Android.BadgeIconType.Small)
       .android.setAutoCancel(true)
-      .android.setChannelId('MidouV1.0r1')
+      .android.setChannelId('Midou')
       .android.setSmallIcon('ic_launcher_round')
+      .android.setLargeIcon('ic_launcher_round')
       .android.setPriority(firebase.notifications.Android.Priority.Default);
       firebase.notifications().displayNotification(_notification)
     });
