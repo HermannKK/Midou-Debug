@@ -1,0 +1,50 @@
+{
+  "name": "Midou",
+  "version": "5.3.0",
+  "private": true,
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios --simulator=\"iPhone X\"",
+    "apk": "cd android && ./gradlew assembleRelease",
+    "rename": "node ./bin/rename.js",
+    "start": "react-native start",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@mapbox/react-native-mapbox-gl": "github:nitaliano/react-native-mapbox-gl#master",
+    "@react-native-community/async-storage": "^1.4.0",
+    "@react-native-community/geolocation": "^1.2.0",
+    "geonames.js": "^2.1.0",
+    "native-base": "^2.12.1",
+    "react": "16.8.3",
+    "react-native": "0.59.3",
+    "react-native-actionsheet": "^2.4.2",
+    "react-native-circular-progress": "^1.1.0",
+    "react-native-confirmation-code-field": "^3.4.1",
+    "react-native-dialog": "^5.6.0",
+    "react-native-email": "^1.0.2",
+    "react-native-firebase": "^5.3.1",
+    "react-native-gesture-handler": "^1.1.0",
+    "react-native-image-crop-picker": "^0.23.1",
+    "react-native-looped-carousel": "^0.1.13",
+    "react-native-material-cards": "^1.0.9",
+    "react-native-popup-menu": "^0.15.6",
+    "react-native-svg": "^9.4.0",
+    "react-navigation": "^3.7.1",
+    "react-redux": "^7.0.3",
+    "redux": "^4.0.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.4.3",
+    "@babel/runtime": "^7.4.3",
+    "babel-jest": "^24.7.1",
+    "fs-extra": "^7.0.1",
+    "jest": "^24.7.1",
+    "metro-react-native-babel-preset": "^0.53.1",
+    "react-test-renderer": "16.8.3",
+    "replace-in-file": "^3.4.4"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
