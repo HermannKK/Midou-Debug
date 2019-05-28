@@ -106,7 +106,10 @@ class EnCoursA extends React.Component {
       </TouchableOpacity>
     );
   };
-
+  retirerAnnonce(id){
+    //id = this.data.key 
+    firebase.firestore().collection('PlatPost').doc(id).update({active:false})
+  }
   clickAnnonce = props => {
     fn1 = () => {
       Alert.alert(
