@@ -16,14 +16,14 @@ class OneCommande extends React.Component {
     //   LieuDate,
     //   description
     // } = this.data;
-    // fc = this.props.fc;
+    fc = this.props.fc;
     return (
       <TouchableOpacity
         activeOpacity={0.8}
         style={styles.mainContainer}
-        // onPress={() => {
-        //   fc(this.data);
-        // }}
+        onPress={() => {
+          fc(this.data);
+        }}
       >
         <View style={styles.containerImagePlat}>
           <Image

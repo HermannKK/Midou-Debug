@@ -11,13 +11,13 @@ import {
   Easing,
   Dimensions,
   PanResponder,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from "react-native";
-
 import { Icon, Toast } from "native-base";
 import firebase from "react-native-firebase";
 import { color, dataFood } from "./MyData/Mydata";
-
+import T3Bbouton from "../../othersComponents/T3Bbouton";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
 
 class StoryFood extends React.Component {
@@ -25,31 +25,25 @@ class StoryFood extends React.Component {
     super(props);
 
     this.state = {
-      loading:false,
-      isEnabled:true,
+      loading: false,
+      isEnabled: true,
       imageLoad: false,
-
       showCommandeBouton: false,
-
       index: 0,
-
       quantite: 1,
-
       plusInfo: false,
-
-      animHeigthCommande: new Animated.Value(0),
-
-      animWidthCommande: new Animated.Value(0)
+      bgColor: "#000",
+      animHeigthCommande: new Animated.Value(0)
     };
 
     this.onPress = this.props.onclick;
-    this.localisation=this.props.localisation
+    this.localisation = this.props.localisation;
     this.item = this.props.item;
-    this.user ={
-      name:null,
-      photo:null,
-      phone:null,
-      id:null
+    this.user = {
+      name: null,
+      photo: null,
+      phone: null,
+      id: null
     };
     this.dimension = Dimensions.get("window");
   }
@@ -64,74 +58,96 @@ class StoryFood extends React.Component {
   }
 
   incrementViews = async () => {
-    const ref = await firebase.firestore().collection("PlatPost").doc(this.item.key);
-    await ref.update({ views: this.item.views+1 });
+    const ref = await firebase
+      .firestore()
+      .collection("PlatPost")
+      .doc(this.item.key);
+    await ref.update({ views: this.item.views + 1 });
   };
-  incrementOrders= async () => {
-    const ref = await firebase.firestore().collection("PlatPost").doc(this.item.key);
+  incrementOrders = async () => {
+    const ref = await firebase
+      .firestore()
+      .collection("PlatPost")
+      .doc(this.item.key);
     await ref.update({ orders: firebase.firestore.FieldValue.increment(1) });
   };
-  sendNotification=async(orderKey)=>{
-    const value=await this.item.price*this.state.quantite;
-    const bodySender= await 'Votre commande de '+this.item.name+' de MAD '+value+' à bien été effectuée';
-    const bodyRecipient= await 'Vous avez une commande de '+this.item.name+' de MAD '+value;
-    const ref= await firebase.firestore().collection('Notifications');
+  sendNotification = async orderKey => {
+    const value = (await this.item.price) * this.state.quantite;
+    const bodySender =
+      (await "Votre commande de ") +
+      this.item.name +
+      " de MAD " +
+      value +
+      " à bien été effectuée";
+    const bodyRecipient =
+      (await "Vous avez une commande de ") +
+      this.item.name +
+      " de MAD " +
+      value;
+    const ref = await firebase.firestore().collection("Notifications");
     await ref.add({
-        orderKey: orderKey,
-        sender:{
-            id: this.user.id,
-            body: bodySender ,
-            title: 'Votre commande a bien été efectuée' ,
-            isOpened: false
-        },
-        recipient:{
-            id: this.item.userid,
-            body: bodyRecipient ,
-            title:'Vous avez une nouvelle commande' ,
-            isOpened:false,
-            token: this.item.pushToken
-        },
-        pictureURL:this.item.pictures[0],
-        date: firebase.firestore.Timestamp.now(), 
-    })
+      orderKey: orderKey,
+      sender: {
+        id: this.user.id,
+        body: bodySender,
+        title: "Votre commande a bien été efectuée",
+        isOpened: false
+      },
+      recipient: {
+        id: this.item.userid,
+        body: bodyRecipient,
+        title: "Vous avez une nouvelle commande",
+        isOpened: false,
+        token: this.item.pushToken
+      },
+      pictureURL: this.item.pictures[0],
+      date: firebase.firestore.Timestamp.now()
+    });
   };
-  placeOrder =async()=>{
-    await this.setState({isEnabled:false})
-    const ref= await firebase.firestore().collection('Orders');
-    await ref.add({
+  placeOrder = async () => {
+    await this.setState({ isEnabled: false });
+    const ref = await firebase.firestore().collection("Orders");
+    await ref
+      .add({
         name: this.item.name,
         platKey: this.item.key,
         quantite: this.state.quantite,
         price: this.item.price,
         datePlaced: firebase.firestore.Timestamp.now(),
-        buyer:{
-            name: this.item.name,
-            uid:this.user.id,
-            picture: this.user.photo,
-            phoneNumber: this.user.phone,
-            localisation:new firebase.firestore.GeoPoint(this.localisation[0],this.localisation[1])
+        buyer: {
+          name: this.item.name,
+          uid: this.user.id,
+          picture: this.user.photo,
+          phoneNumber: this.user.phone,
+          localisation: new firebase.firestore.GeoPoint(
+            this.localisation[0],
+            this.localisation[1]
+          )
         },
         dateAdded: this.item.date
-    })
-    .then(async succes=>{await this.sendNotification(succes.id)});
+      })
+      .then(async succes => {
+        await this.sendNotification(succes.id);
+      });
     await this.incrementOrders();
-    await this.setState({loading:false});
+    await this.setState({ loading: false });
     await Toast.show({
       text: "Félicitations! Votre commande a bien été effectuée",
       buttonText: "Okay",
       duration: 3000,
       type: "success"
-    })
-  }
-
-  
+    });
+  };
 
   changeImage = () => {
     if (
       this.state.index < this.item.pictures.length - 1 &&
       !this.state.useClickCimg
     ) {
-      this.setState(prevState => ({ index: prevState.index + 1,imageLoad:false }));
+      this.setState(prevState => ({
+        index: prevState.index + 1,
+        imageLoad: false
+      }));
     }
   };
 
@@ -155,26 +171,6 @@ class StoryFood extends React.Component {
     }
   };
 
-  animToHideCommande = () => {
-    animeHeigth = Animated.timing(this.state.animHeigthCommande, {
-      toValue: this.dimension.height,
-
-      duration: 100,
-
-      easing: Easing.linear
-    });
-
-    animeWidth = Animated.timing(this.state.animWidthCommande, {
-      toValue: this.dimension.width,
-
-      duration: 100,
-
-      easing: Easing.linear
-    });
-
-    Animated.parallel([animeHeigth, animeWidth]).start();
-  };
-
   animationPan1 = () => {
     anime = Animated.timing(this.state.animHeigthCommande, {
       toValue: this.dimension.height,
@@ -186,6 +182,7 @@ class StoryFood extends React.Component {
   };
 
   animationPan2 = () => {
+    this.setState({ bgColor: "#000" });
     anime = Animated.timing(this.state.animHeigthCommande, {
       toValue: 0,
 
@@ -204,22 +201,36 @@ class StoryFood extends React.Component {
           this.setState({
             showCommandeBouton: true
           });
-
-          // this.AnimeToCommande();
         }}
       >
         <View style={{ paddinTop: 34 }}>
           <Icon
             name="chevron-up"
-            type="EvilIcons"
-            style={{ color: color.addPlus, fontSize: 30 }}
+            type="Entypo"
+            style={{ color: color.addPlus, fontSize: 25 }}
           />
         </View>
-
-        <Text style={{ fontSize: 17, fontWeight: "400", color: color.addPlus }}>
-          COMMANDER MAINTENANT
+        <Text
+          style={{ fontSize: 20, fontWeight: "bold", color: color.addPlus }}
+        >
+          Commander maintenant
         </Text>
       </TouchableOpacity>
+    );
+  };
+
+  Signaler = () => {
+    Alert.alert(
+      "Signaler l'annonce ",
+      "en contuniant ,Vous signalez cette annonce.rassurer vous nous l'analyserons ",
+      [
+        {
+          text: "Annuler",
+          onPress: () => console.log("Cancel Pressed")
+        },
+        { text: "OK", onPress: () => console.log("Cancel Pressed") }
+      ],
+      { cancelable: false }
     );
   };
 
@@ -233,6 +244,7 @@ class StoryFood extends React.Component {
               this.animationPan1();
               this.onPress();
             }}
+            style={{marginRight:10}}
           >
             <Icon
               name="chevron-down"
@@ -250,14 +262,12 @@ class StoryFood extends React.Component {
               {this.item.name}
               {"    "}
             </Text>
-
             <Text style={styles.infoTextStyle}>
               {this.item.normalDate}
               {"    "}
             </Text>
           </View>
         </View>
-
         <View style={styles.indicatorContainer}>
           {this.state.imageLoad && (
             <AnimatedCircularProgress
@@ -276,6 +286,11 @@ class StoryFood extends React.Component {
               backgroundColor="black"
             />
           )}
+          <T3Bbouton
+            data={[{ text: "Signaler l'annonce", func: this.Signaler }]}
+            size={{ height: 80, width: 30 }}
+            iconsize={22}
+          />
         </View>
       </View>
     );
@@ -385,10 +400,10 @@ class StoryFood extends React.Component {
           style={styles.btPost}
           activeOpacity={1}
           onPress={async () => {
-                  await this.setState({ loading: true });
-                  await this.placeOrder()
-                    }
-                  }>
+            await this.setState({ loading: true });
+            await this.placeOrder();
+          }}
+        >
           {this.renderLoading()}
         </TouchableOpacity>
       </View>
@@ -424,21 +439,20 @@ class StoryFood extends React.Component {
   };
 
   componentDidMount() {
-    StatusBar.setHidden(true);
-    let user=firebase.auth().currentUser;
-    this.user.name=user.displayName;
-    this.user.id=user.uid;
-    this.user.photo=user.photoURL;
-    this.user.phone=user.phoneNumber;
-    if(this.user.id==this.item.userid){
-      this.setState({isEnabled:true})
-    }
-    else{
-      this.setState({isEnabled:false});
+    StatusBar.setBackgroundColor("#000000");
+    let user = firebase.auth().currentUser;
+    this.user.name = user.displayName;
+    this.user.id = user.uid;
+    this.user.photo = user.photoURL;
+    this.user.phone = user.phoneNumber;
+    if (this.user.id == this.item.userid) {
+      this.setState({ isEnabled: true });
+    } else {
+      this.setState({ isEnabled: false });
       this.incrementViews();
     }
   }
-  
+
   renderLoading() {
     if (this.state.loading == true) {
       return <ActivityIndicator size="large" color="white" />;
@@ -446,10 +460,6 @@ class StoryFood extends React.Component {
     {
       return <Text style={styles.textPost}>Commander</Text>;
     }
-  }
-
-  componentWillUnmount() {
-    StatusBar.setHidden(false);
   }
 
   componentWillMount() {
@@ -474,12 +484,9 @@ class StoryFood extends React.Component {
           if (touches.length == 1) {
             if (gestureState.dy > 0) {
               this.setState({
+                bgColor: "transparent",
                 animHeigthCommande: new Animated.Value(gestureState.dy)
               });
-
-              if (gestureState.dy > 100) {
-                // this.setState({});
-              }
             } else {
               if (gestureState.dy < -50) {
                 this.setState({
@@ -517,56 +524,44 @@ class StoryFood extends React.Component {
   }
 
   render() {
+    const ronded = -this.state.animHeigthCommande;
     return (
-      <View
+      <Animated.View
         style={{
           flex: 1,
-
           position: "absolute",
-
-          width: this.dimension.width,
-
-          height: this.dimension.height
+          top: this.state.animHeigthCommande,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: this.state.bgColor
         }}
+        {...this.panResponder.panHandlers}
       >
-        <Animated.View
+        {this.state.bgColor == "#000" && this.addTopBar()}
+
+        <Image
           style={{
             flex: 1,
-
-            justifyContent: "center",
-
-            alignItems: "center",
-
-            position: "relative",
-
-            top: this.state.animHeigthCommande,
-
-            left: this.state.animWidthCommande,
-
-            backgroundColor: "#ecf0f1"
+            width: this.dimension.width,
+            height: this.dimension.height
+            // borderRadius:1000
           }}
-          {...this.panResponder.panHandlers}
-        >
-          <Image
-            style={{
-              flex: 1,
-              width: this.dimension.width,
-              height: this.dimension.height
-            }}
-            source={{ uri: this.item.pictures[this.state.index] }}
-            resizeMode="cover"
-            onLoad={e => this.setState({ imageLoad: true })}
-            onError={e => console.log("erreur")}
-          />
-          {(!this.state.imageLoad  && this.state.index < this.item.pictures.length-1)  && (
+          source={{ uri: this.item.pictures[this.state.index] }}
+          // resizeMode={this.state.bgColor=='#000' ? 'contain':'cover'}
+          resizeMode={"contain"}
+          onLoad={e => this.setState({ imageLoad: true })}
+          onError={e => console.log("erreur")}
+        />
+        {!this.state.imageLoad &&
+          this.state.index < this.item.pictures.length - 1 && (
             <View style={styles.imageActivity}>
               <ActivityIndicator size="large" color="white" />
             </View>
           )}
-          {this.addTopBar()}
-        </Animated.View>
-        {this.state.showCommandeBouton ? this.buyFood() : this.addPlus()}
-      </View>
+        {this.state.bgColor == "#000" && this.addPlus()}
+        {this.state.showCommandeBouton && this.buyFood()}
+      </Animated.View>
     );
   }
 }
@@ -574,37 +569,14 @@ class StoryFood extends React.Component {
 const styles = StyleSheet.create({
   mainContainerAddPlus: {
     height: 60,
-
-    justifyContent: "center",
-
     alignItems: "center",
-
-    position: "absolute",
-
-    right: 0,
-
-    left: 0,
-
-    bottom: 0
+    justifyContent: "center"
   },
 
   mainContainerTopBar: {
-    flex: 1,
-
     height: 65,
-
-    position: "absolute",
-
-    top: 0,
-
-    left: 0,
-
-    right: 0,
-
     flexDirection: "row",
-
     alignItems: "center",
-
     justifyContent: "space-between"
   },
 
@@ -624,19 +596,15 @@ const styles = StyleSheet.create({
 
   indicatorContainer: {
     width: 80,
-
     height: 50,
-
-    justifyContent: "center",
-
-    alignItems: "center"
+    justifyContent: "flex-end",
+    alignItems: "center",
+    flexDirection: "row"
   },
 
   mainTextStyle: {
     fontSize: 16,
-
     fontWeight: "bold",
-
     color: color.addPlus
   },
 

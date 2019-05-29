@@ -6,7 +6,8 @@ import {
   Image,
   TouchableOpacity,
   Easing,
-  ActivityIndicator,StatusBar
+  ActivityIndicator,
+  StatusBar
 } from "react-native";
 import { Icon } from "native-base";
 import Mapbox from "@mapbox/react-native-mapbox-gl";
@@ -26,7 +27,7 @@ class RenderMap extends Component {
     super(props);
     this.state = {
       loading: true,
-      location: [34.016127, -6.836705],
+      location: [-6.843266, 34.007651],
       ValuerenderMap: false,
       showBulle: false,
       mapToMoov: true,
@@ -39,7 +40,6 @@ class RenderMap extends Component {
       userID: null
     };
     this.data = [];
-    this.dataFood = null;
     this.openDrawerFun = this.props.onclick;
     this.unsubscribe = null;
   }
@@ -94,7 +94,7 @@ class RenderMap extends Component {
           <Icon
             name="menu"
             type="Entypo"
-            style={{ color: "black", fontSize: 35 }}
+            style={{ color: "#fff", fontSize: 35 }}
           />
         </TouchableOpacity>
       </Animated.View>
@@ -146,9 +146,12 @@ class RenderMap extends Component {
   bulleEventClick = () => {
     this.setState({ showBulle: false, showStoryFood: true });
   };
-  bulleStoryEventClick = () => {
-    this.setState({ showStoryFood: false, showBulle: true });
-    StatusBar.setHidden(false);
+  ajusteStatuBar = () => {
+    StatusBar.setBackgroundColor("#d35400");
+  };
+  bulleStoryEventClick = async () => {
+    await this.setState({ showStoryFood: false, showBulle: true });
+    await setTimeout(this.ajusteStatuBar, 500);
   };
 
   takeUserPosition = () => {
@@ -252,7 +255,15 @@ class RenderMap extends Component {
     this.takeUserPosition();
     this.getData();
   }
-
+  // shouldComponentUpdate(prevProps, prevState) {
+  //   this.getData()
+  //   if (this.state.data.length !== prevState.data.length) {
+  //     this.setState({
+  //       info: prevProps.item
+  //     });
+  //   }
+  //   return true;
+  // }
   // componentWillUnmount(){
   //   this.unsubscribe()
   // }
@@ -263,7 +274,7 @@ class RenderMap extends Component {
       <View style={styles.container}>
         {this.props.children}
         <Mapbox.MapView
-          styleURL={Mapbox.StyleURL.Street}
+          styleURL={Mapbox.StyleURL.Dark}
           zoomLevel={14}
           maxZoomLevel={20}
           showUserLocation={true}

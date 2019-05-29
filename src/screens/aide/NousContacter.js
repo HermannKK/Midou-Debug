@@ -6,31 +6,8 @@ import {
   Text,
   StyleSheet
 } from "react-native";
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardAction,
-  CardButton,
-  CardImage
-} from "react-native-material-cards";
-import {
-  Container,
-  Textarea,
-  Form,
-  Item,
-  Input,
-  ListItem,
-  Header,
-  Content,
-  Left,
-  Icon,
-  Right,
-  Footer,
-  Button,
-  Body,
-  Title
-} from "native-base";
+import { Card, CardTitle } from "react-native-material-cards";
+import { Container, Content } from "native-base";
 
 class NousContacter extends React.Component {
   render() {

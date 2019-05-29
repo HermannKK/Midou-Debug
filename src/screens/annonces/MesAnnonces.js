@@ -10,7 +10,7 @@ import SalesAnalytics from "./SalesAnalytics";
 import Poster from "./Poster";
 import OneAnnonceSelected from "./OneAnnonceSelected";
 import BackBouton from "../othersComponents/BackBouton";
-import { T3PBouton } from "../othersComponents/T3Bbouton";
+import T3PBouton from "../othersComponents/T3Bbouton";
 
 const TabAnnonces = createMaterialTopTabNavigator(
   {
@@ -68,8 +68,10 @@ const AnnoncesStack = createStackNavigator(
     },
     Poster: {
       screen: Poster,
-      navigationOptions: {
-        title: "Nouveau Post"
+      navigationOptions: function({ navigation }) {
+        return {
+          title: navigation.getParam("type") ? 'Mise a jour Annonce':"Nouvelle Annonce",
+        };
       }
     },
     OneAnnonceSelected: {
@@ -78,7 +80,11 @@ const AnnoncesStack = createStackNavigator(
         return {
           title: "Votre Annonce",
           headerRight: (
-            <T3PBouton data={navigation.getParam("RightButtondata")} />
+            <T3PBouton
+              data={navigation.getParam("RightButtondata")}
+              size={{ height: 80, width: 50 }}
+              iconsize={18}
+            />
           )
         };
       }

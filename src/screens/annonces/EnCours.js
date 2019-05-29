@@ -106,7 +106,9 @@ class EnCoursA extends React.Component {
       </TouchableOpacity>
     );
   };
-
+  retirerAnnonce(id){
+    firebase.firestore().collection('PlatPost').doc(id).update({active:false})
+  }
   clickAnnonce = props => {
     fn1 = () => {
       Alert.alert(
@@ -120,13 +122,13 @@ class EnCoursA extends React.Component {
                 color:'red'
             }
           },
-          { text: "OK", onPress: () => console.log("Cancel Pressed") }
+          { text: "OK", onPress: () => this.retirerAnnonce(props.key) }
         ],
         { cancelable: false }
       );
     };
     fn2 = () => {
-      this.props.navigation.navigate("Poster",{ModifData:props})
+      this.props.navigation.navigate("Poster",{ModifData:props,type:'MAJ'})
     };
     this.props.navigation.navigate("OneAnnonceSelected", {
       dataAnnonce: props,
@@ -170,7 +172,7 @@ class EnCoursA extends React.Component {
                   >
                     <Image
                       style={styleA.imageStyle}
-                      resizeMode={"cover"}
+                      resizeMode={'cover'}
                       resizeMethod={"auto"}
                       source={{ uri: item.pictures[1] }}
                     />

@@ -45,8 +45,6 @@ class Poster extends React.Component {
       NumeroPhonePosteur: null,
       UserNamePosteur: null,
       Posteid: null,
-      indiceImage: null,
-      i: 0
     };
     this.noCU = {
       HeadText: "Gagner de l'argent avec Midou",
@@ -55,11 +53,10 @@ class Poster extends React.Component {
       boutonText: "Devenir cuisinier"
     };
     this.is_cooker = this.props.is_cooker;
-    this.pushToken =this.props.pushToken;
+    this.pushToken = this.props.pushToken;
   }
 
   uploadImage = (UID, PlatUid) => {
-    console.log("started");
     const _picturesURL = [];
     for (let i = 0; i < 3; i++) {
       firebase
@@ -73,7 +70,6 @@ class Poster extends React.Component {
           console.log(error);
         });
     }
-    console.log(_picturesURL);
     return _picturesURL;
   };
 
@@ -89,7 +85,6 @@ class Poster extends React.Component {
     UserID
   ) => {
     await this.setState({ loading: true });
-    await console.log("started");
     const picturesURL = [];
     for (let i = 0; i < 3; i++) {
       await firebase
@@ -111,9 +106,15 @@ class Poster extends React.Component {
           console.log(error);
         });
     }
-    await console.log(picturesURL);
-    const pushToken =await firebase.firestore().collection('Users').doc(UserID).get().then(doc=>{let _doc=doc.data()
-      return _doc.pushToken});
+    const pushToken = await firebase
+      .firestore()
+      .collection("Users")
+      .doc(UserID)
+      .get()
+      .then(doc => {
+        let _doc = doc.data();
+        return _doc.pushToken;
+      });
     const ref = await firebase.firestore().collection("PlatPost");
     await ref
       .add({
@@ -137,7 +138,6 @@ class Poster extends React.Component {
         pushToken: pushToken
       })
       .then(async succes => {
-        await console.log(succes.id)
         await this.setState({ loading: false }),
           Toast.show({
             text: "Félicitations! Votre plat a bien été posté",
@@ -188,7 +188,6 @@ class Poster extends React.Component {
     const min = new Date().getMinutes(); //Current Minutes
     const sec = new Date().getSeconds(); //Current Seconds
     const id = date + "" + month + "" + year + "" + hours + "" + min + "" + sec;
-    console.log(id);
     return id;
   }
 
@@ -228,7 +227,7 @@ class Poster extends React.Component {
       return <ActivityIndicator size="large" color="white" />;
     }
     {
-      return <Text style={styles.textPost}>POSTER UN PLAT</Text>;
+      return <Text style={styles.textPost}>{this.type=='MAJ' ? 'METTRE A JOUR ':'POSTER UN PLAT'}</Text>;
     }
   }
 
@@ -255,10 +254,16 @@ class Poster extends React.Component {
                   });
             }}
           >
-            {i <= this.dataPlat.plat.PlatPhoto.length - 1 && (
+            {i <= this.dataPlat.plat.PlatPhoto.length - 1 && this.dataPlat.plat.PlatPhoto[i].path ? (
               <Image
                 style={{ height: 140, width: 100, borderRadius: 6 }}
                 source={{ uri: this.dataPlat.plat.PlatPhoto[i].path }}
+                resizeMode={"cover"}
+              />
+            ):(
+              <Image
+                style={{ height: 140, width: 100, borderRadius: 6 }}
+                source={{ uri: this.dataPlat.plat.PlatPhoto[i] }}
                 resizeMode={"cover"}
               />
             )}
@@ -310,12 +315,31 @@ class Poster extends React.Component {
   componentWillMount() {}
 
   componentDidMount() {
+    const { navigation } = this.props;
+    const data = navigation.getParam("ModifData");
+    this.type=navigation.getParam('type')
     this.dataPlat.UserNamePosteur = firebase.auth().currentUser.displayName;
     this.dataPlat.currentUserPosteurID = firebase.auth().currentUser.uid;
     this.dataPlat.NumeroPhonePosteur = firebase.auth().currentUser.phoneNumber;
     this.dataPlat.userPhoto = firebase.auth().currentUser.photoURL;
     const PosteID = this.setIdFromDate();
     this.dataPlat.Posteid = PosteID;
+
+    if (data) {
+      this.dataPlat = {
+        plat: {
+          description: data.description,
+          Prix: data.price,
+          categorie: data.categorie,
+          nom: data.name,
+          position: [data.localisation._latitude,data.localisation._longitude],
+          PlatPhoto: data.pictures,
+        },
+        Posteid: data.key,
+      };
+      this.setState(prevState => ({ photochange: !prevState.photochange }));
+    }
+    
   }
 
   render() {
@@ -355,6 +379,7 @@ class Poster extends React.Component {
             <View style={{ paddingTop: 20 }}>
               <Text style={styles.headInfo}>Nom du plat</Text>
               <TextInput
+               defaultValue={this.dataPlat.plat.nom}
                 style={styles.textInGen}
                 maxLength={50}
                 multiline={false}
@@ -365,6 +390,7 @@ class Poster extends React.Component {
               />
               <Text style={styles.headInfo}>Catégorie</Text>
               <TextInput
+               defaultValue={this.dataPlat.plat.categorie}
                 style={styles.textInGen}
                 maxLength={50}
                 multiline={false}
@@ -375,16 +401,27 @@ class Poster extends React.Component {
               />
               <Text style={styles.headInfo}>Description et ingredients</Text>
               <TextInput
-                style={[styles.textInGen, { height: 100,textAlign:'justify',textAlignVertical:'top' }]}
+                style={[
+                  styles.textInGen,
+                  {
+                    height: 100,
+                    textAlign: "justify",
+                    textAlignVertical: "top"
+                  }
+                ]}
+                defaultValue={this.dataPlat.plat.description}
                 maxLength={1000}
                 multiline={true}
-                placeholder={"exemple: Mon plat est le meilleur des plats\n-tomates\n-épices"}
+                placeholder={
+                  "exemple: Mon plat est le meilleur des plats\n-tomates\n-épices"
+                }
                 keyboardType={"default"}
                 onChangeText={text => (this.dataPlat.plat.description = text)}
                 // value={this.state.text}
               />
               <Text style={styles.headInfo}>Prix (MAD)</Text>
               <TextInput
+               defaultValue={this.dataPlat.plat.Prix}
                 style={styles.textInGen}
                 maxLength={5}
                 multiline={false}
@@ -422,7 +459,7 @@ class Poster extends React.Component {
                     this.dataPlat.plat.position[0],
                     this.dataPlat.plat.position[1],
                     this.dataPlat.plat.Prix,
-                    this.dataPlat.currentUserPosteurID,
+                    this.dataPlat.currentUserPosteurID
                   );
                 }}
               >

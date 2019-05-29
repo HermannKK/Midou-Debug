@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import SliderImage from "../othersComponents/SliderImage";
 import MapPosition from "../othersComponents/MapPosition";
-// import { tabImage, cookerImage } from "../home/MapComponents/MyData/Mydata";
 class OneCommandeSelected extends React.Component {
   constructor(props) {
     super(props);

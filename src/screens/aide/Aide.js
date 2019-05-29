@@ -13,7 +13,6 @@ class Aide extends React.Component {
   }
 
   retrieveHelpData = async () => {
-    console.log('started');
     const _data = [];
     const ref=firebase.firestore().collection('Aide')
     await ref.get().then((querySnapshot) => {
@@ -28,9 +27,7 @@ class Aide extends React.Component {
           console.log(doc.id, " => ", doc.data());
       });
     });
-  console.log(this.state.loading)
   this.setState({data:_data, loading: false});
-  console.log(this.state.loading)
   }
 
   componentDidMount() {
@@ -56,7 +53,7 @@ class Aide extends React.Component {
             renderItem={({ item }) => (
               <TouchableOpacity 
                 activeOpacity={0.9}
-                onPress={()=>Linking.openURL(item.link)}>
+                onPress={()=>this.props.navigation.navigate("NousContacterMessage",{data:item.issue})}>
                 <Text style={styles.textInGen}>{item.issue}</Text>
               </TouchableOpacity>
               

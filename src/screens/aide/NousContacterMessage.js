@@ -1,5 +1,5 @@
 import React from "react";
-import { View, KeyboardAvoidingView ,Text,StyleSheet} from "react-native";
+import { View, KeyboardAvoidingView, Text, StyleSheet } from "react-native";
 import {
   Container,
   Textarea,
@@ -17,48 +17,59 @@ import {
   Button,
   Footer
 } from "native-base";
-import email from 'react-native-email'
+import email from "react-native-email";
 
 class NousContacterMessage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      sujet:'',
-      texte:''
+      sujet: "",
+      texte: ""
     };
-  };
+  }
   handleEmail = () => {
-    const to = 'midoudeliveryservice@gmail.com' // string or array of email addresses
+    const to = "midoucontact@gmail.com"; // string or array of email addresses
     email(to, {
-        subject: this.state.sujet,
-        body: this.state.texte
-    }).catch(console.error)
+      subject: this.state.sujet,
+      body: this.state.texte
+    }).catch(console.error);
   };
-  HandleSujetChange = (value) => {
+  HandleSujetChange = value => {
     this.setState({
       sujet: value
     });
   };
-  HandleTextChange = (value) => {
+  HandleTextChange = value => {
     this.setState({
       texte: value
     });
   };
+  componentDidMount() {
+    const { navigation } = this.props;
+    if (navigation.getParam("data"))
+      this.setState({ sujet: navigation.getParam("data") });
+  }
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <View style={{ flex: 2 }}>
           <Form>
             <Item stackedLabel>
-              <Input placeholder="Sujet" onChangeText={this.HandleSujetChange}/>
+              <Input
+                placeholder="Sujet"
+                defaultValue={this.state.sujet}
+                onChangeText={this.HandleSujetChange}
+              />
             </Item>
-            <Textarea rowSpan={5} onChangeText={this.HandleTextChange} placeholder="Ecrire un message" />
+            <Textarea
+              rowSpan={5}
+              style={styles.messagetext}
+              onChangeText={this.HandleTextChange}
+              placeholder="Ecrire un message"
+            />
           </Form>
         </View>
-        <Text
-          style={styles.contactUs}
-          onPress={() => this.handleEmail()}
-        >
+        <Text style={styles.contactUs} onPress={() => this.handleEmail()}>
           ENVOYER
         </Text>
       </KeyboardAvoidingView>
@@ -83,6 +94,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: color.orange,
     color: "white"
+  },
+  messagetext: {
+    marginLeft: 10
   }
 });
 

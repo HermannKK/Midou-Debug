@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Image} from "react-native";
+import { View, Image, ActivityIndicator} from "react-native";
 import {
   Icon,
 } from "native-base";
@@ -10,16 +10,12 @@ import RenderMap from './MapComponents/RenderMap'
 class Home extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+     
+    };
   }
 
-  checkNotifications =async (id) =>{
-    const enabled = await firebase.messaging().hasPermission();
-      if (enabled) {
-        await firebase.messaging().getToken().then(token=>{firebase.firestore().collection('Users').doc(id).update({ pushToken: token }); return token})
-      } else {
-        await ToastAndroid.show('Vous ne recevrez pas de notifications de notre part', ToastAndroid.LONG);
-      }
-  }
+ 
 
   getData = async () => {
     const user=await firebase.auth().currentUser;
@@ -30,42 +26,51 @@ class Home extends React.Component {
     const user_id= await user.uid;
     const ref= firebase.firestore().collection('Users').doc(user_id);
     const is_cooker = await ref.get().then((doc)=>{console.log(doc) ;return doc.data().is_cooker});
-    const pushToken= await this.checkNotifications(user_id);
-    const data= await {username,user_email,user_phoneNumber,user_photo, is_cooker, pushToken,user_id}; 
-    await changeUserdataInGlobal('CHANGE_ALL',data,this.props)
-  };
+    const data= await {username,user_email,user_phoneNumber,user_photo, is_cooker,user_id}; 
+    await changeUserdataInGlobal('CHANGE_ALL',data,this.props);}
+
+
   componentWillMount =async () =>  {
     await this.getData();
-    
   }
- /*  componentDidMount(){
-    // Build a channel
-    const channel = new firebase.notifications.Android.Channel('MidouV1.0r1', 'Midou', firebase.notifications.Android.Importance.Max)
-    .setDescription('Midou');
-    // Create the channel
+
+  componentDidMount(){
+    const channel = new firebase.notifications.Android.Channel('Midou', 'Midou', firebase.notifications.Android.Importance.Max).setDescription('Midou');
     firebase.notifications().android.createChannel(channel);
     this.removeNotificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification) => {
-      // Process your notification as required
-      // ANDROID: Remote notifications do not contain the channel ID. You will have to specify this manually if you'd like to re-display the notification.
-
+      console.log(notification);
     });
     this.removeNotificationListener = firebase.notifications().onNotification((notification) => {
-        // Process your notification as required
+      const _notification = new firebase.notifications.Notification({sound: 'default',show_in_foreground: true})
+      .setNotificationId('notificationId')
+      .setTitle(notification.title)
+      .setBody(notification.body)
+      .android.setBadgeIconType(firebase.notifications.Android.BadgeIconType.Small)
+      .android.setAutoCancel(true)
+      .android.setChannelId('Midou')
+      .android.setSmallIcon('ic_launcher_round')
+      .android.setLargeIcon('ic_launcher_round')
+      .android.setPriority(firebase.notifications.Android.Priority.Default);
+      firebase.notifications().displayNotification(_notification)
     });
   }
 
   componentWillUnmount() {
     this.removeNotificationDisplayedListener();
     this.removeNotificationListener();
-} */
+  }
+
   render() {
-    // console.log(this.props)
-    return (
-      <View style={{flex:1}}>
-        <RenderMap onclick={this.props.navigation.openDrawer} />
-        {/* <LoggedOutStep3/> */}
-      </View>
-    );
+    
+    
+      return (
+        <View style={{flex:1}}>
+          <RenderMap onclick={this.props.navigation.openDrawer} />
+          {/* <LoggedOutStep3/> */}
+        </View>
+      );
+    
+    
   }
 }
 const mapStateToProps = state => {

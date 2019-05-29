@@ -8,13 +8,12 @@ import {
   StyleSheet,
   View
 } from "react-native";
-import { dataRepasCommande } from "../home/MapComponents/MyData/Mydata";
-import Histo from '../othersComponents/Histo'
-class AncienneC extends React.Component {
+import OneCommande from './OneCommande'
+class ContenuMesCommandes extends React.Component {
   constructor(props) {
     super(props);
     this.state = {};
-    this.data = [];
+    this.data = [1];
   }
 
   clickCommande = props => {
@@ -22,21 +21,20 @@ class AncienneC extends React.Component {
   };
 
   render() {
-    this.data=dataRepasCommande
     return (
       <View style={styles.mainContainer}>
         {this.data.length == 0 ? (
           <View style={styles.Nocommande}>
             <Text style={styles.textStyle}>
-              Vous n'avez pas encore effectue de commande{" "}
+              Vous n'avez aucune commande en cours{" "}
             </Text>
           </View>
         ) : (
           <ScrollView>
             <FlatList
               data={this.data}
-              keyExtractor={item => item.id}
-              renderItem={({ item }) => <Histo data={item} fc={this.clickCommande}/> }
+              keyExtractor={item => item.toString()}
+              renderItem={({ item }) =><OneCommande fc={this.clickCommande}/>}
             />
           </ScrollView>
         )}
@@ -57,6 +55,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default AncienneC;
-
-//data
+export default ContenuMesCommandes;

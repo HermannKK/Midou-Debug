@@ -8,9 +8,9 @@ exports.sendPushNotification = functions.firestore
     // gets standard JavaScript object from the new write
     const data = snapshot.data();
     // access data necessary for push notification 
-    const recipient = data.recipient;
-    const title = data.title;
-    const body = data.body;
+    const recipient = data.recipient.token;
+    const title = data.recipient.title;
+    const body = data.recipient.body;
 
     let payload = {
       notification: {
