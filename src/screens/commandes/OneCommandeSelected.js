@@ -10,22 +10,32 @@ import {
 } from "react-native";
 import SliderImage from "../othersComponents/SliderImage";
 import MapPosition from "../othersComponents/MapPosition";
+import { dataRepasCommande } from "../home/MapComponents/MyData/Mydata";
 class OneCommandeSelected extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { data: null, showInformations: false };
+    this.state = {
+      data: dataRepasCommande[0],
+      showInformations: false,
+      note: 0,
+      notecusto: false
+    };
   }
 
-  renduEtoile = n => {
+  renduEtoile = (n, size, note) => {
     const item = [];
+    if (note) n = this.state.note;
     for (let i = 0; i < 5; i++) {
       if (i < n) {
         item.push(
           <Icon
             name="star"
             type="AntDesign"
-            style={styles.etoile}
+            style={{ color: "yellow", fontSize: size }}
             key={i.toString()}
+            onPress={() => {
+              if (note) this.setState({ note: i + 1 });
+            }}
           />
         );
       } else {
@@ -33,19 +43,22 @@ class OneCommandeSelected extends React.Component {
           <Icon
             name="star"
             type="AntDesign"
-            style={[styles.etoile, { color: "white" }]}
+            style={{ color: "white", fontSize: size }}
             key={i.toString()}
+            onPress={() => {
+              if (note) this.setState({ note: i + 1 });
+            }}
           />
         );
       }
     }
     return item;
   };
-    componentDidMount() {
-      const { navigation } = this.props;
-      const data = navigation.getParam("dataCommande");
-      this.setState({ data: data });
-    }
+  componentDidMount() {
+    const { navigation } = this.props;
+    const data = navigation.getParam("dataCommande");
+    this.setState({ data: data });
+  }
   render() {
     const data = this.state.data;
     return (
@@ -66,7 +79,7 @@ class OneCommandeSelected extends React.Component {
                 <Text style={styles.tvTotalPrice}>Prix total</Text>
                 <View style={styles.tvDirectionRow}>
                   <Text style={styles.tvMad}> MAD </Text>
-                  <Text style={styles.tvPrice}>{data.pu*data.quantite}</Text>
+                  <Text style={styles.tvPrice}>{data.pu * data.quantite}</Text>
                   {this.state.showInformations ? (
                     <Icon
                       name="chevron-up"
@@ -93,7 +106,9 @@ class OneCommandeSelected extends React.Component {
                   </View>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Date</Text>
-                    <Text style={styles.ivText}>17 nov 2019 {data.comTime}</Text>
+                    <Text style={styles.ivText}>
+                      17 nov 2019 {data.comTime}
+                    </Text>
                   </View>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Prix unitaire</Text>
@@ -121,7 +136,9 @@ class OneCommandeSelected extends React.Component {
                   </View>
                   <View style={styles.ivContTotal}>
                     <Text style={styles.ivTotal}>Total</Text>
-                    <Text style={styles.ivTotal}>{data.pu*data.quantite}</Text>
+                    <Text style={styles.ivTotal}>
+                      {data.pu * data.quantite}
+                    </Text>
                   </View>
                 </View>
               )}
@@ -147,7 +164,9 @@ class OneCommandeSelected extends React.Component {
                   title={"Vos repas"}
                   image={data.Photo[0]}
                 />
-                <Text>({data.platP[0]};{data.platP[1]})</Text>
+                <Text>
+                  ({data.platP[0]};{data.platP[1]})
+                </Text>
               </View>
 
               <View style={styles.iaContainair}>
@@ -169,8 +188,33 @@ class OneCommandeSelected extends React.Component {
                     <Text>{data.LieuDate}</Text>
                   </View>
                 </View>
-                <View style={styles.etoileView}>{this.renduEtoile(5)}</View>
+                <View style={styles.etoileView}>
+                  {this.renduEtoile(5, 17, false)}
+                </View>
               </View>
+              {!this.state.notecusto && (
+                <View
+                  style={styles.contNotecuisto}
+                >
+                  <Text
+                    style={styles.contNotecuistohead}
+                  >
+                    Votre feedback nous interesse
+                  </Text>
+                  <View style={styles.etoileView}>
+                    {this.renduEtoile(0, 40, true)}
+                  </View>
+                  <Text
+                    style={styles.envoyeNote}
+                    onPress={() => {
+                      if (this.state.note > 0)
+                        this.setState({ notecusto: true });
+                    }}
+                  >
+                    ENVOYER
+                  </Text>
+                </View>
+              )}
               <View style={styles.bvRjectContainer}>
                 <Text
                   style={{ color: "red" }}
@@ -294,7 +338,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  etoile: { color: "yellow", fontSize: 17 }
+  contNotecuisto:{
+    backgroundColor: "#2ed573",
+    marginLeft: 15,
+    marginRight: 15,
+    borderRadius: 5,
+    paddingTop: 10
+  },envoyeNote:{
+    alignSelf: "center",
+    fontSize: 19,
+    marginBottom: 10,
+    color: "#fff",
+    textAlign: "center",
+    textAlignVertical: "center",
+    marginTop: 10
+  },contNotecuistohead:{
+    alignSelf: "center",
+    fontSize: 19,
+    marginBottom: 10,
+    color: "#000"
+  }
 });
 
 export default OneCommandeSelected;

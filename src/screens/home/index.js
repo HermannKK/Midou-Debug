@@ -6,6 +6,7 @@ import {
 import firebase from "react-native-firebase";
 import { connect } from "react-redux";
 import { changeUserdataInGlobal } from "../../Store/Reducers/userProfilReducer";
+import OneCommandeSelected from '../commandes/OneCommandeSelected'
 import RenderMap from './MapComponents/RenderMap'
 class Home extends React.Component {
   constructor(props) {
@@ -66,7 +67,7 @@ class Home extends React.Component {
       return (
         <View style={{flex:1}}>
           <RenderMap onclick={this.props.navigation.openDrawer} />
-          {/* <LoggedOutStep3/> */}
+          {/* <OneCommandeSelected/> */}
         </View>
       );
     
