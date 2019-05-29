@@ -5,7 +5,7 @@ import { tabImage, cookerImage } from "../home/MapComponents/MyData/Mydata";
 class OneCommande extends React.Component {
   constructor(props) {
     super(props);
-    // this.data = this.props.data;
+    this.data = this.props.data;
   }
   render() {
     // const {
@@ -29,21 +29,21 @@ class OneCommande extends React.Component {
           <Image
             style={{ height: 60, width: 60, borderRadius: 30 }}
             resizeMode={"cover"}
-            source={tabImage[0]}
+            source={{uri:this.data.imagePlat}}
           />
           <View style={styles.containerImageCuisto}>
             <Image
               style={{ height: 30, width: 30, borderRadius: 15 }}
               resizeMode={"cover"}
-              source={cookerImage.cooker1}
+              source={{uri:this.data.buyer.picture}}
             />
           </View>
         </View>
         <View style={styles.containerInfo}>
           <Text style={[styles.mainTextStyle,{color:'black',marginBottom:3}]}>
-            Vous avez effectué une commande MAD 300 de Attiéke chez Kabissa
+            Vous avez effectué une commande MAD {this.data.price * this.data.quantite} de {this.data.name}
           </Text>
-          <Text style={styles.mainTextStyle}>il ya 2 min</Text>
+          <Text style={styles.mainTextStyle}>{this.data.normalDate.date} à {this.data.normalDate.hour}</Text>
         </View>
         <View style={styles.containerBottom}>
           <View style={styles.globalContainerVoir_icon}>
