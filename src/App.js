@@ -39,7 +39,7 @@ export default class MainApp extends React.Component {
   }
 
   componentDidMount=async()=> {
-    await setTimeout(this.passToApp, 3000);
+    // await setTimeout(this.passToApp, 3000);
     this.authSubscription = await firebase.auth().onAuthStateChanged(user => {
     if(user){
         this.checkNotifications(user.uid);
@@ -61,7 +61,7 @@ export default class MainApp extends React.Component {
     return (
       <View style={{ flex: 1 }}>
       <StatusBar backgroundColor="#d35400" barStyle="light-content" />
-        {this.state.loading ? (
+        {!this.state.loading ? (
           <Loading />
         ) : this.state.user ? (
           <LoggedIn navigation={this.props.navigation} />

@@ -17,7 +17,7 @@ import firebase from "react-native-firebase";
 import PlatLocation from "./PlatLocation";
 import { connect } from "react-redux";
 import TextButton from "../othersComponents/TextButton";
-
+import { reactionAfterAction } from "../othersComponents/RepetedFunctions/GroupeA";
 class Poster extends React.Component {
   constructor(props) {
     super(props);
@@ -27,9 +27,8 @@ class Poster extends React.Component {
       choosepicture: false,
       choosePlatPosition: false,
       userEtat: null,
-      UrlPhoto1: "jbkjh",
-      UrlPhoto2: "jhgvgh",
-      UrlPhoto3: "hgvgh"
+      posterror: false,
+      validPost: false
     };
     this.dataPlat = {
       plat: {
@@ -37,14 +36,14 @@ class Poster extends React.Component {
         Prix: null,
         categorie: null,
         nom: null,
-        position: null,
+        position: [],
         PlatPhoto: [],
         userPhoto: null
       },
       currentUserPosteurID: null,
       NumeroPhonePosteur: null,
       UserNamePosteur: null,
-      Posteid: null,
+      Posteid: null
     };
     this.noCU = {
       HeadText: "Gagner de l'argent avec Midou",
@@ -86,7 +85,7 @@ class Poster extends React.Component {
   ) => {
     await this.setState({ loading: true });
     const picturesURL = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < this.dataPlat.plat.PlatPhoto.length; i++) {
       await firebase
         .storage()
         .ref(
@@ -227,7 +226,11 @@ class Poster extends React.Component {
       return <ActivityIndicator size="large" color="white" />;
     }
     {
-      return <Text style={styles.textPost}>{this.type=='MAJ' ? 'METTRE A JOUR ':'POSTER UN PLAT'}</Text>;
+      return (
+        <Text style={styles.textPost}>
+          {this.type == "MAJ" ? "METTRE A JOUR " : "POSTER UN PLAT"}
+        </Text>
+      );
     }
   }
 
@@ -254,13 +257,14 @@ class Poster extends React.Component {
                   });
             }}
           >
-            {i <= this.dataPlat.plat.PlatPhoto.length - 1 && this.dataPlat.plat.PlatPhoto[i].path ? (
+            {i <= this.dataPlat.plat.PlatPhoto.length - 1 &&
+            this.dataPlat.plat.PlatPhoto[i].path ? (
               <Image
                 style={{ height: 140, width: 100, borderRadius: 6 }}
                 source={{ uri: this.dataPlat.plat.PlatPhoto[i].path }}
                 resizeMode={"cover"}
               />
-            ):(
+            ) : (
               <Image
                 style={{ height: 140, width: 100, borderRadius: 6 }}
                 source={{ uri: this.dataPlat.plat.PlatPhoto[i] }}
@@ -312,12 +316,38 @@ class Poster extends React.Component {
     this.setState({ choosePlatPosition: false });
   };
 
-  componentWillMount() {}
+  postValidation = () => {
+    const {
+      description,
+      Prix,
+      categorie,
+      nom,
+      position,
+      PlatPhoto
+    } = this.dataPlat.plat;
+    if (
+      PlatPhoto.length == 0 ||
+      Prix == (null || 0) ||
+      description == (null || "") ||
+      categorie == (null || "") ||
+      nom == (null || "") ||
+      position.length == 0
+    ) {
+      this.setState({ validPost: false });
+    } else this.setState({ validPost: true });
+  };
+  showPostError = () => {
+    const hideerror = () => {
+      this.setState({ posterror: false });
+    };
+    this.setState({ posterror: true, loading: false });
+    setTimeout(hideerror, 2000);
+  };
 
   componentDidMount() {
     const { navigation } = this.props;
     const data = navigation.getParam("ModifData");
-    this.type=navigation.getParam('type')
+    this.type = navigation.getParam("type");
     this.dataPlat.UserNamePosteur = firebase.auth().currentUser.displayName;
     this.dataPlat.currentUserPosteurID = firebase.auth().currentUser.uid;
     this.dataPlat.NumeroPhonePosteur = firebase.auth().currentUser.phoneNumber;
@@ -332,14 +362,13 @@ class Poster extends React.Component {
           Prix: data.price,
           categorie: data.categorie,
           nom: data.name,
-          position: [data.localisation._latitude,data.localisation._longitude],
-          PlatPhoto: data.pictures,
+          position: [data.localisation._latitude, data.localisation._longitude],
+          PlatPhoto: data.pictures
         },
-        Posteid: data.key,
+        Posteid: data.key
       };
       this.setState(prevState => ({ photochange: !prevState.photochange }));
     }
-    
   }
 
   render() {
@@ -379,25 +408,23 @@ class Poster extends React.Component {
             <View style={{ paddingTop: 20 }}>
               <Text style={styles.headInfo}>Nom du plat</Text>
               <TextInput
-               defaultValue={this.dataPlat.plat.nom}
+                defaultValue={this.dataPlat.plat.nom}
                 style={styles.textInGen}
                 maxLength={50}
                 multiline={false}
                 keyboardType={"default"}
                 placeholder={"exemple: Tajine au poulet"}
                 onChangeText={text => (this.dataPlat.plat.nom = text)}
-                // value={this.state.text}
               />
               <Text style={styles.headInfo}>Catégorie</Text>
               <TextInput
-               defaultValue={this.dataPlat.plat.categorie}
+                defaultValue={this.dataPlat.plat.categorie}
                 style={styles.textInGen}
                 maxLength={50}
                 multiline={false}
                 keyboardType={"default"}
                 placeholder={"exemple: Marocain"}
                 onChangeText={text => (this.dataPlat.plat.categorie = text)}
-                // value={this.state.text}
               />
               <Text style={styles.headInfo}>Description et ingredients</Text>
               <TextInput
@@ -417,18 +444,16 @@ class Poster extends React.Component {
                 }
                 keyboardType={"default"}
                 onChangeText={text => (this.dataPlat.plat.description = text)}
-                // value={this.state.text}
               />
               <Text style={styles.headInfo}>Prix (MAD)</Text>
               <TextInput
-               defaultValue={this.dataPlat.plat.Prix}
+                defaultValue={this.dataPlat.plat.Prix}
                 style={styles.textInGen}
                 maxLength={5}
                 multiline={false}
                 placeholder={"exemple: 25"}
                 keyboardType={"numeric"}
                 onChangeText={text => (this.dataPlat.plat.Prix = text)}
-                // value={this.state.text}
               />
               <Text style={styles.headInfo}>Localisation</Text>
               <TouchableOpacity
@@ -438,7 +463,7 @@ class Poster extends React.Component {
                   this.setState({ choosePlatPosition: true });
                 }}
               >
-                {this.dataPlat.plat.position && (
+                {this.dataPlat.plat.position.length == 2 && (
                   <Text style={{ fontSize: 16 }}>
                     ({this.dataPlat.plat.position[0]},
                     {this.dataPlat.plat.position[1]})
@@ -450,17 +475,20 @@ class Poster extends React.Component {
                 activeOpacity={1}
                 onPress={async () => {
                   await this.setState({ loading: true });
-                  this.AjoutPoste(
-                    this.dataPlat.UserNamePosteur,
-                    this.dataPlat.NumeroPhonePosteur,
-                    this.dataPlat.plat.categorie,
-                    this.dataPlat.plat.description,
-                    this.dataPlat.plat.nom,
-                    this.dataPlat.plat.position[0],
-                    this.dataPlat.plat.position[1],
-                    this.dataPlat.plat.Prix,
-                    this.dataPlat.currentUserPosteurID
-                  );
+                  await this.postValidation();
+                  this.state.validPost
+                    ? this.AjoutPoste(
+                        this.dataPlat.UserNamePosteur,
+                        this.dataPlat.NumeroPhonePosteur,
+                        this.dataPlat.plat.categorie,
+                        this.dataPlat.plat.description,
+                        this.dataPlat.plat.nom,
+                        this.dataPlat.plat.position[0],
+                        this.dataPlat.plat.position[1],
+                        this.dataPlat.plat.Prix,
+                        this.dataPlat.currentUserPosteurID
+                      )
+                    : this.showPostError();
                 }}
               >
                 {this.renderLoading()}
@@ -485,6 +513,10 @@ class Poster extends React.Component {
           </View>
         )}
         {this.pictureChoice()}
+        {this.state.posterror &&
+          reactionAfterAction(
+            "Tout les champs doivent etre remplit pour poster "
+          )}
       </View>
     );
   }

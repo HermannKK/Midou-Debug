@@ -6,16 +6,17 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Image
+  Image,
+  ActivityIndicator
 } from "react-native";
 import SliderImage from "../othersComponents/SliderImage";
 import MapPosition from "../othersComponents/MapPosition";
-import { dataRepasCommande } from "../home/MapComponents/MyData/Mydata";
+import firebase from "react-native-firebase";
 class OneCommandeSelected extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      data: dataRepasCommande[0],
+      data: null,
       showInformations: false,
       note: 0,
       notecusto: false
@@ -59,13 +60,44 @@ class OneCommandeSelected extends React.Component {
     const data = navigation.getParam("dataCommande");
     this.setState({ data: data });
   }
+
+  updateBoard(key) {
+    this.setState({
+      isLoading1: true
+    });
+    const updateRef = firebase
+      .firestore()
+      .collection("Orders")
+      .doc(key);
+    updateRef
+      .update({
+        note: this.state.note
+      })
+      .then(async docRef => {
+        await this.setState(prevState => ({
+          data: { ...prevState.data, note: this.state.note },
+          notecusto: true
+        }));
+        setTimeout(this.hidenotecont, 2000);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
+
+  hidenotecont = () => {
+    this.setState({
+      notecusto: false
+    });
+  };
+
   render() {
     const data = this.state.data;
     return (
       <View style={styles.mainContainer}>
-        {this.state.data != null && (
+        {this.state.data != null ? (
           <ScrollView style={{ flex: 1, paddingTop: 5 }}>
-            <SliderImage tabI={data.Photo} height={300} />
+            <SliderImage tabI={data.imagePlat} height={300} />
             <View style={styles.alldetailsCon}>
               <TouchableOpacity
                 style={styles.tvContenair}
@@ -79,7 +111,9 @@ class OneCommandeSelected extends React.Component {
                 <Text style={styles.tvTotalPrice}>Prix total</Text>
                 <View style={styles.tvDirectionRow}>
                   <Text style={styles.tvMad}> MAD </Text>
-                  <Text style={styles.tvPrice}>{data.pu * data.quantite}</Text>
+                  <Text style={styles.tvPrice}>
+                    {data.price * data.quantite}
+                  </Text>
                   {this.state.showInformations ? (
                     <Icon
                       name="chevron-up"
@@ -102,17 +136,18 @@ class OneCommandeSelected extends React.Component {
                   </Text>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Repas commandé</Text>
-                    <Text style={styles.ivText}>{data.NomPlat}</Text>
+                    <Text style={styles.ivText}>{data.name}</Text>
                   </View>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Date</Text>
                     <Text style={styles.ivText}>
-                      17 nov 2019 {data.comTime}
+                      {data.normalDate.formattedDate} á{" "}
+                      {data.normalDate.formattedTime}
                     </Text>
                   </View>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Prix unitaire</Text>
-                    <Text style={styles.ivText}>{data.pu}</Text>
+                    <Text style={styles.ivText}>{data.price}</Text>
                   </View>
                   <View style={styles.ivInfoIntContainer}>
                     <Text style={styles.ivText}>Quantité</Text>
@@ -131,13 +166,13 @@ class OneCommandeSelected extends React.Component {
                       Description{" "}
                     </Text>
                     <Text style={[styles.ivText, { flex: 5 }]}>
-                      {data.description}
+                      {data.PlatDescription}
                     </Text>
                   </View>
                   <View style={styles.ivContTotal}>
                     <Text style={styles.ivTotal}>Total</Text>
                     <Text style={styles.ivTotal}>
-                      {data.pu * data.quantite}
+                      {data.price * data.quantite}
                     </Text>
                   </View>
                 </View>
@@ -158,14 +193,17 @@ class OneCommandeSelected extends React.Component {
                 }}
               >
                 <MapPosition
-                  position={data.platP}
+                  position={[
+                    data.platLocation.latitude,
+                    data.platLocation.longitude
+                  ]}
                   zomLevel={10}
                   height={130}
                   title={"Vos repas"}
-                  image={data.Photo[0]}
+                  image={data.imagePlat[0]}
                 />
                 <Text>
-                  ({data.platP[0]};{data.platP[1]})
+                  ({data.platLocation.latitude} ; {data.platLocation.longitude})
                 </Text>
               </View>
 
@@ -180,25 +218,23 @@ class OneCommandeSelected extends React.Component {
                     <Image
                       style={{ height: 60, width: 60, borderRadius: 30 }}
                       resizeMode={"cover"}
-                      source={data.cooker}
+                      source={{ uri: data.cookerInfo.photo }}
                     />
                   </View>
                   <View style={{ paddingLeft: 10 }}>
-                    <Text style={styles.iaUserName}>{data.cuName}</Text>
-                    <Text>{data.LieuDate}</Text>
+                    <Text style={styles.iaUserName}>
+                      {data.cookerInfo.name}
+                    </Text>
+                    <Text>Rabat</Text>
                   </View>
                 </View>
                 <View style={styles.etoileView}>
                   {this.renduEtoile(5, 17, false)}
                 </View>
               </View>
-              {!this.state.notecusto && (
-                <View
-                  style={styles.contNotecuisto}
-                >
-                  <Text
-                    style={styles.contNotecuistohead}
-                  >
+              {data.note == (null || undefined) && (
+                <View style={styles.contNotecuisto}>
+                  <Text style={styles.contNotecuistohead}>
                     Votre feedback nous interesse
                   </Text>
                   <View style={styles.etoileView}>
@@ -207,11 +243,17 @@ class OneCommandeSelected extends React.Component {
                   <Text
                     style={styles.envoyeNote}
                     onPress={() => {
-                      if (this.state.note > 0)
-                        this.setState({ notecusto: true });
+                      if (this.state.note > 0) this.updateBoard(data.key);
                     }}
                   >
                     ENVOYER
+                  </Text>
+                </View>
+              )}
+              {this.state.notecusto && (
+                <View style={styles.contNotecuisto}>
+                  <Text style={styles.envoyeNote}>
+                    Merci pour votre engagement
                   </Text>
                 </View>
               )}
@@ -225,6 +267,8 @@ class OneCommandeSelected extends React.Component {
               </View>
             </View>
           </ScrollView>
+        ) : (
+          <ActivityIndicator size="large" color="#F1592A" />
         )}
       </View>
     );
@@ -338,13 +382,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center"
   },
-  contNotecuisto:{
+  contNotecuisto: {
     backgroundColor: "#2ed573",
     marginLeft: 15,
     marginRight: 15,
-    borderRadius: 5,
-    paddingTop: 10
-  },envoyeNote:{
+    borderRadius: 5
+  },
+  envoyeNote: {
     alignSelf: "center",
     fontSize: 19,
     marginBottom: 10,
@@ -352,7 +396,9 @@ const styles = StyleSheet.create({
     textAlign: "center",
     textAlignVertical: "center",
     marginTop: 10
-  },contNotecuistohead:{
+  },
+  contNotecuistohead: {
+    marginTop: 10,
     alignSelf: "center",
     fontSize: 19,
     marginBottom: 10,

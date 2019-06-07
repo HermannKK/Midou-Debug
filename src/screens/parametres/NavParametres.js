@@ -1,10 +1,11 @@
-import * as React from 'react';
+import * as React from "react";
 import { createStackNavigator, createAppContainer } from "react-navigation";
 import ModifierEmail from "./ModifierEmail";
 import ModifierNomComplet from "./ModifierNomComplet";
 import ParametresGeneral from "./ParametresGeneral";
 import ImageViewer from "../othersComponents/ImageViewer";
 import BackBouton from "../othersComponents/BackBouton";
+import MainApp from "../../App";
 
 const Navsettings = createStackNavigator(
   {
@@ -32,7 +33,7 @@ const Navsettings = createStackNavigator(
     ImageViewer: {
       screen: ImageViewer,
       navigationOptions: () => ({
-        title: "Photo de profil    ",    
+        title: "Photo de profil    "
       })
     }
   },

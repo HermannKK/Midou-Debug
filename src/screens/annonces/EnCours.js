@@ -9,12 +9,14 @@ import {
   Image,
   ActivityIndicator,
   TouchableOpacity,
-  RefreshControl,Alert
+  RefreshControl,
+  Alert
 } from "react-native";
 import { connect } from "react-redux";
 import OneAnnonce from "./OneAnnonce";
 import { dataOneAnnonce } from "../home/MapComponents/MyData/Mydata";
 import TextButton from "../othersComponents/TextButton";
+import { convertDate } from "../../functionsRu/groupeA";
 import firebase from "react-native-firebase";
 class EnCoursA extends React.Component {
   constructor(props) {
@@ -41,7 +43,8 @@ class EnCoursA extends React.Component {
     const ref = await firebase
       .firestore()
       .collection("PlatPost")
-      .where("userid", "==", this.userId);
+      .where("userid", "==", this.userId)
+      .where("active", "==", true);
     await ref.get().then(async doc => {
       await this.parseData(doc);
     });
@@ -53,18 +56,10 @@ class EnCoursA extends React.Component {
     await querySnapshot.forEach(async doc => {
       let _data = await doc.data();
       let key = await doc.id;
-      let normalDate = await this.convertToDate(_data.date.toDate());
+      let normalDate = convertDate(_data.date.toDate());
       await this.data.push({ ..._data, key, normalDate });
     });
     await console.log("finished parsing");
-  };
-
-  convertToDate = async dateObject => {
-    const d = await dateObject.getDate();
-    const m = (await dateObject.getMonth()) + 1;
-    const y = await dateObject.getFullYear();
-    const newDate = (await d) + "/" + m + "/" + y;
-    return newDate;
   };
 
   _onRefresh = async () => {
@@ -75,7 +70,6 @@ class EnCoursA extends React.Component {
   };
 
   componentWillMount = async () => {
-    await console.log("started willmount");
     await this.platQuery();
   };
 
@@ -106,8 +100,12 @@ class EnCoursA extends React.Component {
       </TouchableOpacity>
     );
   };
-  retirerAnnonce(id){
-    firebase.firestore().collection('PlatPost').doc(id).update({active:false})
+  retirerAnnonce(id) {
+    firebase
+      .firestore()
+      .collection("PlatPost")
+      .doc(id)
+      .update({ active: false });
   }
   clickAnnonce = props => {
     fn1 = () => {
@@ -119,7 +117,7 @@ class EnCoursA extends React.Component {
             text: "Annuler",
             onPress: () => console.log("Cancel Pressed"),
             style: {
-                color:'red'
+              color: "red"
             }
           },
           { text: "OK", onPress: () => this.retirerAnnonce(props.key) }
@@ -128,30 +126,33 @@ class EnCoursA extends React.Component {
       );
     };
     fn2 = () => {
-      this.props.navigation.navigate("Poster",{ModifData:props,type:'MAJ'})
+      this.props.navigation.navigate("Poster", {
+        ModifData: props,
+        type: "MAJ"
+      });
     };
     this.props.navigation.navigate("OneAnnonceSelected", {
       dataAnnonce: props,
-      RightButtondata:[
+      RightButtondata: [
         { text: "Modifier", func: fn2 },
         { text: "Retirer l'annonce", func: fn1 }
       ]
     });
   };
-
   render() {
-    console.log("rendering");
-    if (this.state.loading == true) {
-      return (
-        <View style={{ flex: 1 }}>
+    return (
+      <View style={styles.mainContainer}>
+        {this.state.loading ? (
           <ActivityIndicator size="large" color="#F1592A" />
-        </View>
-      );
-    } else {
-      if (this.data.length > 0) {
-        return (
+        ) : this.data.length == 0 ? (
+          <View style={styles.Nocommande}>
+            <Text style={styles.textStyle}>
+              Vous n'avez pas d'anciennes Annonces{" "}
+            </Text>
+          </View>
+        ) : (
           <View style={styles.mainContainer}>
-            <ScrollView style={{ paddingTop: 5 ,paddingBottom:50}}>
+            <ScrollView style={{ paddingTop: 5, paddingBottom: 50 }}>
               <FlatList
                 data={this.data}
                 keyExtractor={item => item.key}
@@ -162,40 +163,43 @@ class EnCoursA extends React.Component {
                     onRefresh={this._onRefresh}
                   />
                 }
+                // ItemSeparatorComponent={this.renderSeparator}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     activeOpacity={0.95}
                     style={styleA.oneMain}
                     onPress={() => {
-                      this.clickAnnonce(item)
+                      this.clickAnnonce(item);
                     }}
                   >
                     <Image
                       style={styleA.imageStyle}
-                      resizeMode={'cover'}
+                      resizeMode={"cover"}
                       resizeMethod={"auto"}
-                      source={{ uri: item.pictures[1] }}
+                      source={{ uri: item.pictures[0] }}
                     />
                     <Text style={styleA.PlatNameStyle}>{item.name}</Text>
-                    <Text style={styleA.datePost}>{item.normalDate}</Text>
+                    <Text style={styleA.datePost}>{item.normalDate.time_des}</Text>
                     <View style={styleA.priceVue}>
                       <Icon
                         name="eye"
                         style={styleA.iconStyle}
                         type="AntDesign"
                       />
-                      <Text style={styleA.vuetext}>{item.views}   MAD {item.price * item.orders}</Text>
+                      <Text style={styleA.vuetext}>
+                        {item.views} MAD {item.price * item.orders}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 )}
               />
-              <View style={{paddingBottom:5}}/>
+              <View style={{ paddingBottom: 5 }} />
             </ScrollView>
             {this.doNewPost()}
           </View>
-        );
-      }
-    }
+        )}
+      </View>
+    );
   }
 }
 

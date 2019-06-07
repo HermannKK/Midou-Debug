@@ -9,76 +9,79 @@ class OneAnnonceSelected extends React.Component {
     super(props);
     this.state = { data: null };
   }
-  componentWillMount() {
+
+  componentDidMount() {
     const { navigation } = this.props;
     const data = navigation.getParam("dataAnnonce");
     this.setState({ data: data });
   }
   render() {
-    const data = this.state.data;
-    console.log(data);
-    const latitude = data.localisation.latitude;
-    const longitude = data.localisation.longitude;
-    const position = [latitude,longitude];
-    console.log(latitude);
-    console.log(longitude);
-    console.log(position);
     return (
       <View style={styles.mainContainer}>
         {this.state.data != null && (
           <ScrollView style={{ flex: 1, paddingTop: 5 }}>
-            <SliderImage tabI={data.pictures} height={300} />
+            <SliderImage tabI={this.state.data.pictures} height={300} />
             <View style={styles.alldetailsCon}>
               <Text style={styles.boldTextHeader}>SUMMARY</Text>
               <View style={styles.sumarycontent}>
                 <View>
                   <Text style={styles.summaryTitle}>Ventes</Text>
                   <Text style={styles.summaryContentA}>
-                    DH {data.price * data.orders}
+                    DH {this.state.data.price * this.state.data.orders}
                   </Text>
                 </View>
                 <View>
                   <Text style={styles.summaryTitle}>Commandes</Text>
-                  <Text style={styles.summaryContentA}>{data.orders}</Text>
+                  <Text style={styles.summaryContentA}>
+                    {this.state.data.orders}
+                  </Text>
                 </View>
                 <View>
                   <Text style={styles.summaryTitle}>Vues</Text>
-                  <Text style={styles.summaryContentB}>{data.views}</Text>
+                  <Text style={styles.summaryContentB}>
+                    {this.state.data.views}
+                  </Text>
                 </View>
               </View>
               <Text style={[styles.boldTextHeader, styles.borderSt]}>
                 DÉTAILS
               </Text>
               <MapPosition
-                position={position}
+                position={[
+                  this.state.data.localisation.latitude,
+                  this.state.data.localisation.longitude
+                ]}
                 zomLevel={10}
                 height={150}
                 title={"Vos repas"}
-                image={data.pictures[0]}
+                image={this.state.data.pictures[0]}
               />
               <Text>
-                ({latitude};{longitude})
+                ({this.state.data.localisation.latitude};
+                {this.state.data.localisation.longitude})
               </Text>
               <Text style={[styles.mainTextStyle, { marginTop: 10 }]}>
                 Date:{" "}
                 <Text style={styles.boldText}>
-                  {data.normalDate}
+                  {this.state.data.normalDate.formattedDate}
                 </Text>
               </Text>
               <Text style={styles.mainTextStyle}>
                 Prix:{" "}
                 <Text style={styles.boldText}>
                   {"MAD "}
-                  {data.price}
-                  
+                  {this.state.data.price}
                 </Text>
               </Text>
               <Text style={styles.mainTextStyle}>
-                Titre: <Text style={styles.boldText}>{data.name}</Text>
+                Titre:{" "}
+                <Text style={styles.boldText}>{this.state.data.name}</Text>
               </Text>
               <Text style={styles.mainTextStyle}>
                 Description:{" "}
-                <Text style={styles.boldText}>{data.description}</Text>
+                <Text style={styles.boldText}>
+                  {this.state.data.description}
+                </Text>
               </Text>
             </View>
           </ScrollView>

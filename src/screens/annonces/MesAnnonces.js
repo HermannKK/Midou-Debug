@@ -70,23 +70,31 @@ const AnnoncesStack = createStackNavigator(
       screen: Poster,
       navigationOptions: function({ navigation }) {
         return {
-          title: navigation.getParam("type") ? 'Mise a jour Annonce':"Nouvelle Annonce",
+          title: navigation.getParam("type")
+            ? "Mise a jour Annonce"
+            : "Nouvelle Annonce"
         };
       }
     },
     OneAnnonceSelected: {
       screen: OneAnnonceSelected,
       navigationOptions: function({ navigation }) {
-        return {
-          title: "Votre Annonce",
-          headerRight: (
-            <T3PBouton
-              data={navigation.getParam("RightButtondata")}
-              size={{ height: 80, width: 50 }}
-              iconsize={18}
-            />
-          )
-        };
+        if (navigation.getParam("RightButtondata") == (null || undefined)) {
+          return {
+            title: "Votre Annonce"
+          };
+        } else {
+          return {
+            title: "Votre Annonce",
+            headerRight: (
+              <T3PBouton
+                data={navigation.getParam("RightButtondata")}
+                size={{ height: 80, width: 50 }}
+                iconsize={18}
+              />
+            )
+          };
+        }
       }
     }
   },

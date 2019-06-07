@@ -12,7 +12,7 @@ import {
 import ImagePicker from "react-native-image-crop-picker";
 import { connect } from "react-redux";
 import { changeUserdataInGlobal } from "../../Store/Reducers/userProfilReducer";
-import AsyncImage from '../../AsyncImage';
+import AsyncImage from "../../AsyncImage";
 
 export const uploadImage = (path, mime = "image/png") => {
   return new Promise((resolve, reject) => {
@@ -36,23 +36,24 @@ class ParametresGeneral extends React.Component {
     super(props);
     this.state = {
       photochange: false,
-      choosepicture: false,
+      choosepicture: false
     };
   }
 
-  uploadImageProfil = async (imagePath) => {
-    const currentUser=firebase.auth().currentUser;
-    const currentUserID=currentUser.uid;
-    const _url =await firebase.storage()
-        .ref("/UsersImages/" + currentUserID + "/UserProfile.jpg")
-        .putFile(imagePath)
-        .then(success=>{
-          console.log(success.downloadURL); 
-          currentUser.updateProfile({photoURL:success.downloadURL});
-          return success.downloadURL;
-        });
+  uploadImageProfil = async imagePath => {
+    const currentUser = firebase.auth().currentUser;
+    const currentUserID = currentUser.uid;
+    const _url = await firebase
+      .storage()
+      .ref("/UsersImages/" + currentUserID + "/UserProfile.jpg")
+      .putFile(imagePath)
+      .then(success => {
+        console.log(success.downloadURL);
+        currentUser.updateProfile({ photoURL: success.downloadURL });
+        return success.downloadURL;
+      });
     changeUserdataInGlobal("CHANGE_PHOTOPROFIL", _url, this.props);
-  }
+  };
 
   openCamera() {
     ImagePicker.openCamera({
@@ -62,7 +63,7 @@ class ParametresGeneral extends React.Component {
     }).then(image => {
       changeUserdataInGlobal("CHANGE_PHOTOPROFIL", image.path, this.props);
       this.setState(prevState => ({ photochange: !prevState.photochange }));
-      const url= this.uploadImageProfil(image.path);
+      const url = this.uploadImageProfil(image.path);
     });
     this.setState({ choosepicture: false });
   }
@@ -78,7 +79,7 @@ class ParametresGeneral extends React.Component {
       images.map(image => {
         changeUserdataInGlobal("CHANGE_PHOTOPROFIL", image.path, this.props);
         this.setState(prevState => ({ photochange: !prevState.photochange }));
-        const url= this.uploadImageProfil(image.path);
+        const url = this.uploadImageProfil(image.path);
       });
     });
     this.setState({ choosepicture: false });
@@ -152,12 +153,14 @@ class ParametresGeneral extends React.Component {
             <Icon name={"user"} type="FontAwesome" style={styles.iconuser} />
           ) : (
             <View>
-              {<Image
-                style={styles.userPhoto}
-                source={{ uri: this.props.userProfil.user_photo }}
-                resizeMode={"cover"}
-              />}
-              
+              {
+                <Image
+                  style={styles.userPhoto}
+                  source={{ uri: this.props.userProfil.user_photo }}
+                  resizeMode={"cover"}
+                />
+              }
+
               <TouchableOpacity
                 style={styles.contModifpic}
                 activeOpacity={0.9}
@@ -181,10 +184,13 @@ class ParametresGeneral extends React.Component {
     );
   };
 
-  componentDidMount() {}
-
-  signOut = () => {
-    firebase.auth().signOut();
+  signOut = async () => {
+    try {
+      await firebase.auth().signOut();
+      this.props.navigation.navigate("LoggedOut");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   render() {
@@ -204,7 +210,7 @@ class ParametresGeneral extends React.Component {
           <Text style={styles.headInfo}>Adresse e-mail</Text>
           <Text
             style={styles.textInGen}
-           /*  onPress={() => {
+            /*  onPress={() => {
               this.props.navigation.navigate("ModifierEmail");
             }} */
           >

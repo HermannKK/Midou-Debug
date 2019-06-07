@@ -7,7 +7,9 @@ import {
   TouchableOpacity,
   Easing,
   ActivityIndicator,
-  StatusBar
+  StatusBar,
+  BackHandler,
+  ToastAndroid
 } from "react-native";
 import { Icon } from "native-base";
 import Mapbox from "@mapbox/react-native-mapbox-gl";
@@ -37,7 +39,7 @@ class RenderMap extends Component {
       showStoryFood: false,
       animToReturnLocation: new Animated.Value(1),
       data: [],
-      userID: null
+      mapChange: false
     };
     this.data = [];
     this.openDrawerFun = this.props.onclick;
@@ -49,10 +51,10 @@ class RenderMap extends Component {
       .firestore()
       .collection("PlatPost")
       .where("active", "==", true);
+    console.log(ref);
     this.unsubscribe = await ref.onSnapshot(this.parseData);
     await this.setState({ loading: false });
   };
-
   parseData = async querrySnapshot => {
     await querrySnapshot.forEach(async doc => {
       let _data = await doc.data();
@@ -60,7 +62,8 @@ class RenderMap extends Component {
       let normalDate = await this.convertToDate(_data.date.toDate());
       await this.data.push({ ..._data, key, normalDate });
     });
-    await this.setState({ data: [...this.data] });
+    console.log(this.data);
+    await this.setState({ data: this.data });
   };
 
   convertToDate = async dateObject => {
@@ -161,7 +164,7 @@ class RenderMap extends Component {
       Geolocation.getCurrentPosition(
         position => {
           // console.log(position)
-          const _pos = [position.coords.latitude, position.coords.longitude];
+          const _pos = [position.coords.longitude, position.coords.latitude];
           this.setState({ location: _pos, ValuerenderMap: true });
         },
         error => {
@@ -174,8 +177,8 @@ class RenderMap extends Component {
   };
 
   onAnnotationSelected = async (activeIndex, feature) => {
-    const result = await this.data.filter(item => {
-      if (item.key === this.data[activeIndex].key) {
+    const result = await this.state.data.filter(item => {
+      if (item.key === this.state.data[activeIndex].key) {
         return item;
       }
     });
@@ -204,8 +207,8 @@ class RenderMap extends Component {
     if (this.state.mapToMoov) {
       await this._map.moveTo(
         [
-          this.data[activeIndex].localisation.latitude,
-          this.data[activeIndex].localisation.longitude
+          this.state.data[activeIndex].localisation.latitude,
+          this.state.data[activeIndex].localisation.longitude
         ],
         500
       );
@@ -215,14 +218,14 @@ class RenderMap extends Component {
 
   renderAnnotations() {
     const items = [];
-    for (let i = 0; i < this.data.length; i++) {
+    for (let i = 0; i < this.state.data.length; i++) {
       items.push(
         <Mapbox.PointAnnotation
-          key={this.data[i].key}
-          id={this.data[i].key}
+          key={this.state.data[i].key}
+          id={this.state.data[i].key}
           coordinate={[
-            this.data[i].localisation.latitude,
-            this.data[i].localisation.longitude
+            this.state.data[i].localisation.latitude,
+            this.state.data[i].localisation.longitude
           ]}
         >
           <TouchableOpacity
@@ -236,11 +239,11 @@ class RenderMap extends Component {
             <Image
               style={[styles.imageS]}
               resizeMode={"cover"}
-              source={{ uri: this.data[i].pictures[0] }}
+              source={{ uri: this.state.data[i].pictures[0] }}
             />
           </TouchableOpacity>
           <Mapbox.Callout
-            title={this.data[i].name}
+            title={this.state.data[i].name}
             contentStyle={{ borderRadius: 7 }}
             textStyle={{ fontSize: 14, fontWeight: "bold" }}
           />
@@ -252,24 +255,40 @@ class RenderMap extends Component {
   }
 
   componentDidMount() {
-    this.takeUserPosition();
     this.getData();
+    this.takeUserPosition();
+    this.backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      this.handleBackButton
+    );
   }
+
   // shouldComponentUpdate(prevProps, prevState) {
-  //   this.getData()
-  //   if (this.state.data.length !== prevState.data.length) {
+  //   if (prevProps.item.key !== prevState.data) {
   //     this.setState({
   //       info: prevProps.item
   //     });
   //   }
   //   return true;
   // }
+
   // componentWillUnmount(){
   //   this.unsubscribe()
   // }
 
+  componentWillUnmount() {
+    this.backHandler.remove();
+  }
+
+  handleBackButton = async () => {
+    if (this.state.showStoryFood) {
+      this.bulleStoryEventClick();
+    } else BackHandler.exitApp();
+    return true;
+  };
+
   render() {
-    console.log(this.data);
+    console.log(this.state.data);
     return (
       <View style={styles.container}>
         {this.props.children}
@@ -284,6 +303,10 @@ class RenderMap extends Component {
           logoEnabled={false}
           attributionEnabled={false}
           ref={c => (this._map = c)}
+          // onRegionDidChange={() => {
+          //   // this.setState(prevState=>({mapChange:!prevState.mapChange}))
+          //   // alert(this.state.mapChange)
+          // }}
         >
           {this.renderAnnotations()}
         </Mapbox.MapView>

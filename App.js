@@ -10,18 +10,6 @@ export default class App extends React.Component {
     super();
     this.state = {};
   }
-  componentDidMount() {
-    BackHandler.addEventListener('hardwareBackPress', this.handleBackButton);
-  }
-
-  componentWillUnmount() {
-      BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
-  }
-
-  handleBackButton() {
-      ToastAndroid.show('Action desactivée', ToastAndroid.SHORT);
-      return true;
-  }
   render() {
     return (
       <Root>

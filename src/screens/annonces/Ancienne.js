@@ -11,15 +11,15 @@ import {
   ActivityIndicator
 } from "react-native";
 import { connect } from "react-redux";
-import { dataOneAnnonce } from "../home/MapComponents/MyData/Mydata";
 import firebase from "react-native-firebase";
+import { convertDate } from "../../functionsRu/groupeA";
 import Histo from "../othersComponents/Histo";
 
 import TextButton from "../othersComponents/TextButton";
 class AncienneA extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {refresh:false, loading:true};
+    this.state = { refresh: false, loading: true };
     this.noCU = {
       HeadText: "Gagner de l'argent avec Midou",
       secondText:
@@ -27,119 +27,67 @@ class AncienneA extends React.Component {
       boutonText: "Devenir cuisinier"
     };
     this.is_cooker = this.props.is_cooker;
-    this.userId= this.props.user_id;
-    this.data=[]
+    this.userId = this.props.user_id;
+    this.data = [];
   }
 
-  
-  platQuery = async () =>{
-    this.data =await [];
-    await console.log('started querry');
-    const ref= await firebase.firestore().collection('PlatPost').where('userid','==',this.userId).where('active','==',false);
-    await ref.get().then(async (doc)=>{await this.parseData(doc)});
-    await console.log('finished querry');
-    await this.setState({loading:false});
-  }
-  parseData = async (querySnapshot) => {
-    console.log('started parsing');
-    await querySnapshot.forEach(async (doc) => {
-      let _data = await doc.data();
-      let key = await doc.id;
-      let normalDate = await this.convertToDate(_data.date.toDate())
-      await this.data.push({..._data, key, normalDate});
+  platQuery = async () => {
+    this.data = await [];
+    await console.log("started querry");
+    const ref = await firebase
+      .firestore()
+      .collection("PlatPost")
+      .where("userid", "==", this.userId)
+      .where("active", "==", false);
+    await ref.get().then(async doc => {
+      await this.parseData(doc);
     });
-    await console.log('finished parsing');
-  }
-
-  convertToDate=async(dateObject)=>{
-    const d = await dateObject.getDate();
-    const m = await dateObject.getMonth()+1
-    const y = await dateObject.getFullYear();
-    const newDate= await d + '/' + m + '/' + y ;
-    return newDate;
-  }
+    await console.log("finished querry");
+    await this.setState({ loading: false });
+  };
+  parseData = async querySnapshot => {
+    await querySnapshot.forEach(async doc => {
+      const _data =  doc.data();
+      const  key =  doc.id;
+      const  normalDate = convertDate(_data.date.toDate());
+      await this.data.push({ ..._data, key, normalDate });
+    });
+  };
 
   _onRefresh = async () => {
-    await this.setState({refreshing: true});
+    await this.setState({ refreshing: true });
     await this.platQuery().then(() => {
-      this.setState({refreshing: false});
+      this.setState({ refreshing: false });
     });
-  }
-  
-  componentWillMount = async () =>{
-    await console.log('started willmount');
+  };
+
+  componentWillMount = async () => {
     await this.platQuery();
-  }
+  };
 
   clickAnnonce = props => {
     this.props.navigation.navigate("OneAnnonceSelected", {
-      dataAnnonce: props
+      dataAnnonce: props,
+      RightButtondata:null
     });
   };
-  whenNoCusinier = () => {};
-  render() {
-    if(this.state.loading==true){
-      <View style={{flex:1}}>
-          <ActivityIndicator size="large" color="#F1592A"/>
-        </View>
-    }
-    else{
-      if(this.data.length>0){
-        <ScrollView>
-            <FlatList
-              data={this.data}
-              keyExtractor={item => item.key}
-              refreshControl={
-                <RefreshControl
-                  refreshing={this.state.refreshing}
-                  onRefresh={this._onRefresh}
-                />}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-              activeOpacity={0.8}
-              style={stylesA.mainContainer}
-              onPress={() => {
-                this.props.navigation.navigate("OneAnnonceSelected", {
-                  dataAnnonce: item
-                });
-              }}
-            >
-        <View style={stylesA.conatinertop}>
-          <Text style={stylesA.boldText}>{item.name}</Text>
-          <Text style={stylesA.boldText}>${item.price}</Text>
-        </View>
-        <View style={stylesA.conatinerbottom}>
-          <View style={stylesA.globalContainerVoir_icon}>
-            <Icon name="history" type="FontAwesome" style={stylesA.iconStyle} />
-          </View>
-          <View>
-            <Text style={stylesA.mainTextStyle}>
-              {item.normalDate}
-            </Text>
-            <Text
-              numberOfLines={1}
-              style={stylesA.mainTextStyle}
-              ellipsizeMode={"tail"}
-            >
-              {item.description}
-            </Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-              )}
-            />
-          </ScrollView>
-      }
-    }
+  renderSeparator = () => {
     return (
-      <View style={styles.mainContainer}>
-        {!this.is_cooker ? (
-          <TextButton
-            headText={this.noCU.HeadText}
-            secondText={this.noCU.secondText}
-            boutonText={this.noCU.boutonText}
-            fc={this.whenNoCusinier}
-          />
+      <View
+        style={{
+          height: 1,
+          width: '100%',
+          backgroundColor: "#bdc3c7"
+        }}
+      />
+    );
+  };
+
+  render() {
+    return (
+      <View style={{ flex: 1 }}>
+        {this.state.loading ? (
+          <ActivityIndicator size="large" color="#F1592A" />
         ) : this.data.length == 0 ? (
           <View style={styles.Nocommande}>
             <Text style={styles.textStyle}>
@@ -154,6 +102,7 @@ class AncienneA extends React.Component {
               renderItem={({ item }) => (
                 <Histo data={item} fc={this.clickAnnonce} />
               )}
+              ItemSeparatorComponent={this.renderSeparator}
             />
           </ScrollView>
         )}
@@ -204,7 +153,6 @@ const stylesA = StyleSheet.create({
   },
   iconStyle: { color: "green", fontSize: 32 }
 });
-
 
 const mapStateToProps = state => {
   return {

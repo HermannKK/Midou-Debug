@@ -40,14 +40,19 @@ class LoggedOutStep3 extends React.Component {
     const user = firebase.auth().currentUser;
     this.profile.currentUserID = user.uid;
     this.profile.NumeroPhone = user.phoneNumber;
-    this.state._profilePhotoUrl =
-      "gs://midou-app.appspot.com/UsersImages/" +
-      this.profile.currentUserID +
-      "/UserProfile.jpg";
+    // this.state._profilePhotoUrl =
+    //   "gs://midou-app.appspot.com/UsersImages/" +
+    //   this.profile.currentUserID +
+    //   "/UserProfile.jpg";
+    this.setState({
+      _profilePhotoUrl:
+        "gs://midou-app.appspot.com/UsersImages/" +
+        this.profile.currentUserID +
+        "/UserProfile.jpg"
+    });
     this.profile.ProfileUserOnline = user.photoURL;
     this.profile.userName = user.displayName;
     this.profile.email = user.email;
-    console.log(this.state._profilePhotoUrl);
   };
 
   componentWillMount() {
@@ -191,12 +196,11 @@ class LoggedOutStep3 extends React.Component {
     );
   };
 
-  ajoutProfil= ()=> {
+  ajoutProfil = () => {
     this.setState({ loading: true, acceptChange: false });
     const email = this.profile.email;
     const userName = this.profile.userName;
     const ProfileUser = this.profile.ProfileUser;
-    console.log(ProfileUser);
     const NumeroPhone = this.profile.NumeroPhone;
     firebase
       .auth()
@@ -210,29 +214,46 @@ class LoggedOutStep3 extends React.Component {
       .then(data => {
         changeUserdataInGlobal("CHANGE_USEREMAIL", email, this.props);
       })
-      .catch(error=>{console.log(error)});
-    const cookTest= firebase.firestore().collection('Users').doc(this.profile.currentUserID).get().then(doc=>{if(doc.exists){return doc.data().is_cooker}else{return false}}).catch(error=>{console.log(error)});
+      .catch(error => {
+        console.log(error);
+      });
+    const cookTest = firebase
+      .firestore()
+      .collection("Users")
+      .doc(this.profile.currentUserID)
+      .get()
+      .then(doc => {
+        if (doc.exists) {
+          return doc.data().is_cooker;
+        } else {
+          return false;
+        }
+      })
+      .catch(error => {
+        console.log(error);
+      });
     const ref = firebase
       .firestore()
       .collection("Users")
       .doc(this.profile.currentUserID);
-    ref.set({
-      id: this.profile.currentUserID,
-      is_cooker: cookTest==true? true:false,
-      mail: email,
-      phone: NumeroPhone,
-      username: userName,
-    })
-    .catch(error=>{console.log(error)});
+    ref
+      .set({
+        id: this.profile.currentUserID,
+        is_cooker: cookTest == true ? true : false,
+        mail: email,
+        phone: NumeroPhone,
+        username: userName
+      })
+      .catch(error => {
+        console.log(error);
+      });
     if (this.profile.ProfileUser == null) {
       !this.state.loading;
       this.props.navigation.navigate("Drawer");
     } else {
       firebase
         .storage()
-        .ref(
-          "/UsersImages/" + this.profile.currentUserID + "/UserProfile.jpg"
-        )
+        .ref("/UsersImages/" + this.profile.currentUserID + "/UserProfile.jpg")
         .putFile(this.profile.ProfileUser)
         .then(success => {
           firebase
@@ -243,18 +264,16 @@ class LoggedOutStep3 extends React.Component {
             success.downloadURL,
             this.props
           );
-          console.log("hey");
           !this.state.loading;
-          console.log(this.state.loading);
           this.props.navigation.navigate("Drawer");
         })
-        .catch(error=>{console.log(error)});
+        .catch(error => {
+          console.log(error);
+        });
     }
-  }
+  };
 
   render() {
-    const colorErrorverif =
-      this.state.formValidation == false ? "red" : "black";
     return (
       <View style={styles.mainContainer}>
         <KeyboardAvoidingView

@@ -10,12 +10,15 @@ import {
   Easing,
   Dimensions,
   PanResponder,
-  ActivityIndicator
+  ActivityIndicator,
+  Linking
 } from "react-native";
 import { Icon } from "native-base";
 import Mapbox from "@mapbox/react-native-mapbox-gl";
 import { color } from "../home/MapComponents/MyData/Mydata";
 import firebase from "react-native-firebase";
+import { convertDate } from "../../functionsRu/groupeA";
+import { isBoolean } from "util";
 Mapbox.setAccessToken(
   "pk.eyJ1IjoiYWxpbm8xOTk4IiwiYSI6ImNqcHdvdG13ZjBkb280OHIxZTV6dDVvOWUifQ.IqCLhCar6dlPsSXwPQbE3A"
 );
@@ -28,17 +31,19 @@ class CookerValidateCommande extends React.Component {
       showInformations: false,
       showValidateReject: false,
       topPosition: new Animated.Value(0),
-      loading: true
+      loading: false,
+      data: null,
+      isLoading1: false
     };
-    this.customerPosition = [-6.8438266, 34.0097651];
     this.dimension = Dimensions.get("window");
     this.raisonIndispo = [
       "Indiponibilité du repas",
       "Indiponibilité du cuisinier",
       "Autres"
     ];
-    this.comIcon = require('../home/MapComponents/Images/iconfinder_234-man-raising-hand-1_3099355.png');
-    this.data=[]
+    this.comIcon = require("../home/MapComponents/Images/iconfinder_234-man-raising-hand-1_3099355.png");
+    this.data = null;
+    this.orderdata = null;
   }
 
   animation = () => {
@@ -54,7 +59,10 @@ class CookerValidateCommande extends React.Component {
       <Mapbox.PointAnnotation
         key={"customer location"}
         id={"customer location"}
-        coordinate={[this.data.buyer.localisation.latitude,this.data.buyer.localisation.longitude]}
+        coordinate={[
+          this.state.data.buyer.localisation.longitude,
+          this.state.data.buyer.localisation.latitude
+        ]}
       >
         <View>
           {/* <Icon
@@ -84,7 +92,10 @@ class CookerValidateCommande extends React.Component {
         minZoomLevel={zomLevel}
         zoomLevel={zomLevel}
         maxZoomLevel={zomLevel}
-        centerCoordinate={[this.data.buyer.localisation.latitude,this.data.buyer.localisation.longitude]}
+        centerCoordinate={[
+          this.state.data.buyer.localisation.longitude,
+          this.state.data.buyer.localisation.latitude
+        ]}
         style={styles.mapViewContainer}
         rotateEnabled={false}
         scrollEnabled={false}
@@ -111,7 +122,7 @@ class CookerValidateCommande extends React.Component {
         <View style={styles.tvDirectionRow}>
           <Text style={styles.tvMad}> MAD </Text>
           <Text style={styles.tvPrice}>
-            {this.data.price * this.data.quantite}
+            {this.state.data.price * this.state.data.quantite}
           </Text>
 
           {this.state.showInformations ? (
@@ -123,7 +134,6 @@ class CookerValidateCommande extends React.Component {
       </TouchableOpacity>
     );
   };
-
   infosVenteRender = () => {
     if (this.state.showInformations) {
       return (
@@ -131,28 +141,34 @@ class CookerValidateCommande extends React.Component {
           <Text style={styles.ivInfoSup}>Informations suplémentaires</Text>
           <View style={styles.ivInfoIntContainer}>
             <Text style={styles.ivText}>Repas commandé</Text>
-            <Text style={styles.ivText}>{this.data.name}</Text>
+            <Text style={styles.ivText}>{this.state.data.name}</Text>
           </View>
           <View style={styles.ivInfoIntContainer}>
-            <Text style={styles.ivText}>Date de mise en ligne   </Text>
-            <Text style={styles.ivText}>{this.data.normalDateAdded.date} à {this.data.normalDateAdded.hour}</Text>
+            <Text style={styles.ivText}>Date de mise en ligne </Text>
+            <Text style={styles.ivText}>
+              {this.state.data.dateAdded.formattedDate} à{" "}
+              {this.state.data.dateAdded.formattedTime}
+            </Text>
           </View>
           <View style={styles.ivInfoIntContainer}>
-            <Text style={styles.ivText}>Date de commande   </Text>
-            <Text style={styles.ivText}>{this.data.normalDatePlaced.date} à {this.data.normalDatePlaced.hour}</Text>
+            <Text style={styles.ivText}>Date de commande </Text>
+            <Text style={styles.ivText}>
+              {this.state.data.datePlaced.formattedDate} à{" "}
+              {this.state.data.datePlaced.formattedTime}
+            </Text>
           </View>
           <View style={styles.ivInfoIntContainer}>
-            <Text style={styles.ivText}>Prix unitaire   </Text>
-            <Text style={styles.ivText}>{this.data.price}</Text>
+            <Text style={styles.ivText}>Prix unitaire </Text>
+            <Text style={styles.ivText}>{this.state.data.price}</Text>
           </View>
           <View style={styles.ivInfoIntContainer}>
-            <Text style={styles.ivText}>Quantité   </Text>
-            <Text style={styles.ivText}>{this.data.quantite}</Text>
+            <Text style={styles.ivText}>Quantité </Text>
+            <Text style={styles.ivText}>{this.state.data.quantite}</Text>
           </View>
           <View style={styles.ivContTotal}>
             <Text style={styles.ivTotal}>Total</Text>
             <Text style={styles.ivTotal}>
-              {this.data.price * this.data.quantite}
+              {this.state.data.price * this.state.data.quantite}
             </Text>
           </View>
         </View>
@@ -178,24 +194,35 @@ class CookerValidateCommande extends React.Component {
       <View style={styles.iaContainair}>
         <View style={styles.iaView2}>
           <View style={styles.iaViewIcon1}>
-            <Icon
+            {/* <Icon
               name="user-circle"
               type="FontAwesome"
               style={styles.iaIconUser}
+            /> */}
+            <Image
+              style={styles.iaIconUser}
+              resizeMode={"cover"}
+              source={{ uri: this.state.data.buyer.picture }}
             />
           </View>
           <View style={{ paddingLeft: 10 }}>
-            <Text style={styles.iaUserName}>{this.data.cookerName}</Text>
-            <Text>Cuisinier   </Text>
+            <Text style={styles.iaUserName}>{this.state.data.buyer.name}</Text>
+            <Text>Achetteur</Text>
           </View>
         </View>
-        <View style={styles.telephoneView}>
+        <TouchableOpacity
+          style={styles.telephoneView}
+          opacity={1}
+          onPress={() => {
+            Linking.openURL(`tel:${this.state.data.buyer.phoneNumber}`);
+          }}
+        >
           <Icon
             name="phone"
             type="SimpleLineIcons"
             style={styles.iconTelephoneUser}
           />
-        </View>
+        </TouchableOpacity>
       </View>
     );
   };
@@ -203,8 +230,18 @@ class CookerValidateCommande extends React.Component {
   boutonValidateAndAnulate = () => {
     return (
       <View style={styles.bvContainer}>
-        <TouchableOpacity activeOpacity={0.9} style={styles.bvCommandeBouton}>
-          <Text style={styles.bvCommandeBoutonText}>VALIDER LA COMMANDE</Text>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          style={styles.bvCommandeBouton}
+          onPress={() => {
+            this.updateBoard(0, this.orderdata.orderKey);
+          }}
+        >
+          {this.state.isLoading1 ? (
+            <ActivityIndicator size="large" color="white" />
+          ) : (
+            <Text style={styles.bvCommandeBoutonText}>VALIDER LA COMMANDE</Text>
+          )}
         </TouchableOpacity>
         <View style={styles.bvRjectContainer}>
           <Text
@@ -259,7 +296,19 @@ class CookerValidateCommande extends React.Component {
             })}
           </View>
           <View style={styles.ccViewConfirm}>
-            <Text style={{ fontSize: 17 }}>Terminé</Text>
+            {this.state.isLoading1 ? (
+              <ActivityIndicator size="large" color="#F1592A" />
+            ) : (
+              <Text
+                style={{ fontSize: 17 }}
+                onPress={() => {
+                  if (this.state.itemSelected)
+                    this.updateBoard(1, this.orderdata.orderKey);
+                }}
+              >
+                Terminé
+              </Text>
+            )}
           </View>
         </Animated.View>
       );
@@ -298,57 +347,93 @@ class CookerValidateCommande extends React.Component {
     });
   }
 
-  convertToDate = async dateObject => {
-    const d = await dateObject.getDate();
-    const m = (await dateObject.getMonth()) + 1;
-    const y = await dateObject.getFullYear();
-    const h = await dateObject.getHours();
-    const min = await dateObject.getMinutes();
-    const date = (await d) + "/" + m + "/" + y;
-    const hour = (await h) + ":" + min;
-    const normalDate=await {date, hour};
-    return normalDate;
-  };
-
-  getData=async(key)=>{
-    const ref=await firebase.firestore().collection('Orders').doc(key);
-    const data= await ref.get().then(async doc=>{
-      let _doc=await doc.data();
-      let normalDateAdded= await this.convertToDate(_data.dateAdded.toDate());
-      let normalDatePlaced=await this.convertToDate(_data.datePlaced.toDate());
-      await _doc.push({normalDateAdded, normalDatePlaced});
-      return _doc
+  updateBoard(type, key) {
+    this.setState({
+      isLoading1: true
     });
-    return data
+    const updateRef = firebase
+      .firestore()
+      .collection("Orders")
+      .doc(key);
+    updateRef
+      .update({
+        validate: type == 0 ? true : false,
+        raisonRefu: type == 1 && this.state.itemSelected
+      })
+      .then(docRef => {
+        this.setState({
+          isLoading1: false,
+          showValidateReject: false,
+          data: { ...this.state.data, validate: type == 0 ? true : false }
+        });
+      })
+      .catch(error => {
+        console.error(error);
+        this.setState({
+          isLoading1: false,
+          showValidateReject: false
+        });
+      });
   }
 
-  componentDidMount=async() =>{
-    const { navigation } = await this.props;
-    const key = await navigation.getParam("dataCom");
-    this.data=await this.getData(key);
-    await this.setState({loading:false});
+  getData = async key => {
+    let x = null;
+    const ref = await firebase
+      .firestore()
+      .collection("Orders")
+      .doc(key);
+
+    const data = await ref.get().then(async doc => {
+      x = doc.data();
+      const dateAdded = await convertDate(x.dateAdded.toDate());
+      const datePlaced = await convertDate(x.datePlaced.toDate());
+      this.setState({ data: { ...x, dateAdded, datePlaced }, loading: true });
+      return doc.data().buyer.name;
+    });
+    return x;
+    // return data;
+  };
+
+  componentDidMount() {
+    const { navigation } = this.props;
+    this.orderdata = navigation.getParam("dataCom");
+    this.data = this.getData(this.orderdata.orderKey);
   }
   render() {
     console.log("rendering");
-    if (this.state.loading == true) {
-      return (
-        <View style={{ flex: 1 }}>
-          <ActivityIndicator size="large" color="#F1592A" />
-        </View>
-      )}
-      
+    console.log(this.state.data);
     return (
       <View style={{ flex: 1 }}>
-        {this.state.data != null && (
-          <ScrollView style={styles.container}>
-            {/* {this.props.children} */}
-            {this.MapViewRender()}
-            {this.totalVenteRender()}
-            {this.infosVenteRender()}
-            {this.modePayement()}
-            {this.infoAcheteurRender()}
-            {this.boutonValidateAndAnulate()}
-          </ScrollView>
+        {this.state.loading ? (
+          <View style={{ flex: 1 }}>
+            <ScrollView style={styles.container}>
+              {this.MapViewRender()}
+              {this.totalVenteRender()}
+              {this.infosVenteRender()}
+              {this.modePayement()}
+              {this.infoAcheteurRender()}
+              {this.state.data.validate == (null || undefined) &&
+                this.boutonValidateAndAnulate()}
+            </ScrollView>
+            {typeof this.state.data.validate == "boolean" && (
+              <Text
+                style={{
+                  backgroundColor: "#2ed573",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 50,
+                  color: "white",
+                  textAlign: "center",
+                  textAlignVertical: "center",
+                  fontSize: 18
+                }}
+              >
+                Commande {this.state.data.validate ? "accepté" : "refusé"}
+              </Text>
+            )}
+          </View>
+        ) : (
+          <ActivityIndicator size="large" color="#F1592A" />
         )}
 
         {this.state.showValidateReject && (
@@ -371,7 +456,8 @@ class CookerValidateCommande extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#ecf0f1"
+    backgroundColor: "#ecf0f1",
+    flex: 1
   },
   cmLocationImageStyle: { width: 30, height: 30 },
   calloutContentStyle: {
@@ -476,7 +562,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   iaViewIcon1: { height: 60, width: 60, borderRadius: 30 },
-  iaIconUser: { color: "black", fontSize: 60 },
+  iaIconUser: { height: 60, width: 60, borderRadius: 30 },
   iaUserName: { color: "black", fontWeight: "bold" },
   telephoneView: {
     height: 50,

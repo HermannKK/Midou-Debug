@@ -5,17 +5,9 @@ import { tabImage, cookerImage } from "../home/MapComponents/MyData/Mydata";
 class OneCommande extends React.Component {
   constructor(props) {
     super(props);
-    // this.data = this.props.data;
+    this.data = this.props.data;
   }
   render() {
-    // const {
-    //   NomPlat,
-    //   pu,
-    //   quantite,
-    //   postTime,
-    //   LieuDate,
-    //   description
-    // } = this.data;
     fc = this.props.fc;
     return (
       <TouchableOpacity
@@ -29,25 +21,31 @@ class OneCommande extends React.Component {
           <Image
             style={{ height: 60, width: 60, borderRadius: 30 }}
             resizeMode={"cover"}
-            source={tabImage[0]}
+            source={{ uri: this.data.imagePlat[0] }}
           />
           <View style={styles.containerImageCuisto}>
             <Image
               style={{ height: 30, width: 30, borderRadius: 15 }}
               resizeMode={"cover"}
-              source={cookerImage.cooker1}
+              source={{uri:this.data.cookerInfo.photo}}
             />
           </View>
         </View>
         <View style={styles.containerInfo}>
-          <Text style={[styles.mainTextStyle,{color:'black',marginBottom:3}]}>
-            Vous avez effectué une commande MAD 300 de Attiéke chez Kabissa
+          <Text
+            style={[styles.mainTextStyle, { color: "black", marginBottom: 3 }]}
+            numberOfLines={3}
+          >
+            Vous avez effectué une commande MAD{" "}
+            {this.data.price * this.data.quantite} de {this.data.name} chez{" "}
+            {this.data.cookerInfo.name}
           </Text>
-          <Text style={styles.mainTextStyle}>il ya 2 min</Text>
+          <Text style={styles.mainTextStyle}>
+            {this.data.normalDate.time_des}
+          </Text>
         </View>
         <View style={styles.containerBottom}>
           <View style={styles.globalContainerVoir_icon}>
-            {/* <Text style={styles.voirTextStyle}>oir le post</Text> */}
             <Icon name="eye" style={styles.iconStyle} type="AntDesign" />
           </View>
         </View>
@@ -64,7 +62,10 @@ const styles = StyleSheet.create({
     borderColor: "#bdc3c7",
     backgroundColor: "#f5f6fa",
     alignItems: "center",
-    padding: 5
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingTop: 5,
+    paddingBottom: 5
   },
   containerImagePlat: {
     height: 70,
@@ -84,8 +85,8 @@ const styles = StyleSheet.create({
   },
   containerBottom: {
     justifyContent: "center",
-    alignItems: 'flex-end',
-    flex: 1,
+    alignItems: "flex-end",
+    flex: 1
   },
   containerImageCuisto: {
     height: 30,
@@ -100,9 +101,9 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     backgroundColor: "#2897f3",
     justifyContent: "center",
-    alignItems: 'center',
+    alignItems: "center",
     height: 30,
-    width: 30,
+    width: 30
   },
   voirTextStyle: {
     color: "white",
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   },
   iconStyle: {
     fontSize: 20,
-    color: "white",
+    color: "white"
   }
 });
 
