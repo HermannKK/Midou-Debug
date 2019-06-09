@@ -3,8 +3,8 @@ import { StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import CodeInput from "react-native-confirmation-code-field";
 import firebase from "react-native-firebase";
 import { connect } from "react-redux";
-import {Icon} from 'native-base';
-import {changeUserdataInGlobal} from '../../Store/Reducers/userProfilReducer'
+import { Icon } from "native-base";
+import { changeUserdataInGlobal } from "../../Store/Reducers/userProfilReducer";
 
 class LoggedOutStep2 extends React.Component {
   constructor(props) {
@@ -12,11 +12,11 @@ class LoggedOutStep2 extends React.Component {
     this.state = {
       isNotValidePass: false,
       error: null,
-      numero:null,
-      loading:true,
-      credential:null
+      numero: null,
+      loading: true,
+      credential: null
     };
-    this.confirmResult=null
+    this.confirmResult = null;
   }
 
   numberInput = () => (
@@ -46,23 +46,26 @@ class LoggedOutStep2 extends React.Component {
     };
   };
 
-  onFinishCheckingCode = (code) => {
-    this.confirmResult.confirm(code)
-    .then((user) => {
-      console.log(user);
-      this.setState({ isNotValidePass: false });
-      console.log(this.state.credential);
-      /* this.props.navigation.navigate("Step3"); */
-    })
-    .catch(error => {this.setState({ isNotValidePass: true });});
+  onFinishCheckingCode = code => {
+    this.confirmResult
+      .confirm(code)
+      .then(user => {
+        console.log(user);
+        this.setState({ isNotValidePass: false });
+        console.log(this.state.credential);
+        this.props.navigation.navigate("Step3");
+      })
+      .catch(error => {
+        this.setState({ isNotValidePass: true });
+      });
     this.codeInputRef.current.clear();
   };
 
   async componentDidMount() {
     const { navigation } = this.props;
-    await this.setState({numero:navigation.getParam("numero")})
+    await this.setState({ numero: navigation.getParam("numero") });
     this.handleSignUp();
-    this.state.loading=true;
+    this.state.loading = true;
   }
 
   handleSignUp = () => {
@@ -73,34 +76,52 @@ class LoggedOutStep2 extends React.Component {
         this.setState({ error });
       })
       .then(confirmResult => {
-        this.setState({loading: false});
-        console.log(this.state.loading)
-        console.log(confirmResult);
-        this.confirmResult=confirmResult;
+        this.setState({ loading: false });
+        this.confirmResult = confirmResult;
       });
   };
 
-  renderLoading(){
-    if(this.state.loading==true)
-        {return(
-          <View style={{justifyContent: "center", alignItems:'center' ,marginTop:50}}>
-            <ActivityIndicator size="large" color="#f96138" />
-            <Text style={{justifyContent: "center",alignItems: "center",}} >ENVOI DU CODE DE VERIFICATION... </Text>
-          </View>
-        )}
-    else{
-      return(
-        <View style={{justifyContent: "center", alignItems:'center' ,marginTop:50}}>
-          <Icon name="done" type="MaterialIcons" style={{color: "green", fontSize: 80}}/>
-          <Text style={{justifyContent: "center",alignItems: "center",}} >MESSAGE ENVOYÉ </Text>
+  renderLoading() {
+    if (this.state.loading == true) {
+      return (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 50
+          }}
+        >
+          <ActivityIndicator size="large" color="#f96138" />
+          <Text style={{ justifyContent: "center", alignItems: "center" }}>
+            ENVOI DU CODE DE VERIFICATION...{" "}
+          </Text>
         </View>
-      )
+      );
+    } else {
+      return (
+        <View
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            marginTop: 50
+          }}
+        >
+          <Icon
+            name="done"
+            type="MaterialIcons"
+            style={{ color: "green", fontSize: 80 }}
+          />
+          <Text style={{ justifyContent: "center", alignItems: "center" }}>
+            MESSAGE ENVOYÉ{" "}
+          </Text>
+        </View>
+      );
     }
   }
 
   render() {
     // console.log(this.state.numero);
-    
+
     return (
       <View style={styles.container}>
         <Text style={styles.textStyle}>ENTREZ LE CODE DE VÉRIFICATION </Text>

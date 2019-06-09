@@ -23,44 +23,54 @@ class LoggedOutStep3 extends React.Component {
       photochange: false,
       choosepicture: false,
       formValidation: null,
-      _profilePhotoUrl: "",
-      loading: false
+      // _profilePhotoUrl: "",
+      loading: false,
+      is_cooker: false
     };
     this.profile = {
       userName: "",
       email: "",
-      ProfileUserOnline: null,
       ProfileUser: null,
       currentUserID: null,
       NumeroPhone: null
     };
+    this.ref = firebase.firestore().collection("Users");
   }
 
-  getThingsDone = async () => {
+  getThingsDone = () => {
     const user = firebase.auth().currentUser;
-    this.profile.currentUserID = user.uid;
-    this.profile.NumeroPhone = user.phoneNumber;
-    // this.state._profilePhotoUrl =
-    //   "gs://midou-app.appspot.com/UsersImages/" +
-    //   this.profile.currentUserID +
-    //   "/UserProfile.jpg";
-    this.setState({
-      _profilePhotoUrl:
-        "gs://midou-app.appspot.com/UsersImages/" +
-        this.profile.currentUserID +
-        "/UserProfile.jpg"
-    });
-    this.profile.ProfileUserOnline = user.photoURL;
-    this.profile.userName = user.displayName;
-    this.profile.email = user.email;
+    if (user) {
+      this.profile.currentUserID = user.uid;
+      this.profile.NumeroPhone = user.phoneNumber;
+      // this.setState({
+      //   _profilePhotoUrl:
+      //     "gs://midou-app.appspot.com/UsersImages/" +
+      //     this.profile.currentUserID +
+      //     "/UserProfile.jpg"
+      // });
+      this.profile.ProfileUser = user.photoURL;
+      this.profile.userName = user.displayName;
+      this.profile.email = user.email;
+      this.ref
+        .doc(user.uid)
+        .get()
+        .then(doc => {
+          const is_cooker = doc.data().is_cooker;
+          this.setState({ is_cooker });
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      this.setState(prevState => ({ photochange: !prevState.photochange }));
+    }
   };
 
-  componentWillMount() {
+  componentDidMount() {
     this.getThingsDone();
   }
 
   renderLoading() {
-    if (this.state.loading == true) {
+    if (this.state.loading) {
       return <ActivityIndicator size="large" color="white" />;
     }
     {
@@ -163,15 +173,13 @@ class LoggedOutStep3 extends React.Component {
             }));
           }}
         >
-          {!this.profile.ProfileUserOnline ? (
+          {!this.profile.ProfileUser ? (
             <Icon name={"user"} type="FontAwesome" style={styles.iconuser} />
           ) : (
             <View>
-              <AsyncImage
-                image={this.state._profilePhotoUrl}
-                newUrl={this.profile.ProfileUser}
+              <Image
+                source={{ uri: this.profile.ProfileUser }}
                 style={styles.userPhoto}
-                refresh={this.state.photochange}
               />
               <TouchableOpacity
                 style={styles.contModifpic}
@@ -197,10 +205,8 @@ class LoggedOutStep3 extends React.Component {
   };
 
   ajoutProfil = () => {
-    this.setState({ loading: true, acceptChange: false });
     const email = this.profile.email;
     const userName = this.profile.userName;
-    const ProfileUser = this.profile.ProfileUser;
     const NumeroPhone = this.profile.NumeroPhone;
     firebase
       .auth()
@@ -217,21 +223,6 @@ class LoggedOutStep3 extends React.Component {
       .catch(error => {
         console.log(error);
       });
-    const cookTest = firebase
-      .firestore()
-      .collection("Users")
-      .doc(this.profile.currentUserID)
-      .get()
-      .then(doc => {
-        if (doc.exists) {
-          return doc.data().is_cooker;
-        } else {
-          return false;
-        }
-      })
-      .catch(error => {
-        console.log(error);
-      });
     const ref = firebase
       .firestore()
       .collection("Users")
@@ -239,7 +230,7 @@ class LoggedOutStep3 extends React.Component {
     ref
       .set({
         id: this.profile.currentUserID,
-        is_cooker: cookTest == true ? true : false,
+        is_cooker: this.state.is_cooker,
         mail: email,
         phone: NumeroPhone,
         username: userName
@@ -247,8 +238,13 @@ class LoggedOutStep3 extends React.Component {
       .catch(error => {
         console.log(error);
       });
-    if (this.profile.ProfileUser == null) {
-      !this.state.loading;
+    // changeUserdataInGlobal(
+    //   "CHANGE_PHOTOPROFIL",
+    //   this.profile.ProfileUser,
+    //   this.props
+    // );
+    if (this.validURL(this.profile.ProfileUser)) {
+      this.setState({ loading: false });
       this.props.navigation.navigate("Drawer");
     } else {
       firebase
@@ -264,13 +260,26 @@ class LoggedOutStep3 extends React.Component {
             success.downloadURL,
             this.props
           );
-          !this.state.loading;
+          this.setState({ loading: false });
           this.props.navigation.navigate("Drawer");
         })
         .catch(error => {
           console.log(error);
         });
     }
+  };
+
+  validURL = str => {
+    var pattern = new RegExp(
+      "^(https?:\\/\\/)?" + // protocol
+      "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
+      "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
+      "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
+      "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
+        "(\\#[-a-z\\d_]*)?$",
+      "i"
+    ); // fragment locator
+    return !!pattern.test(str);
   };
 
   render() {
@@ -284,7 +293,7 @@ class LoggedOutStep3 extends React.Component {
         >
           <View>
             <Text style={styles.headInfo}>
-              Votre compte est pret.vous pourrez profiter pleinement de Midou
+              Votre compte est prêt, vous pouvez profiter pleinement de Midou
             </Text>
             {this.userProfilecont()}
             <View style={styles.inpSt}>
@@ -302,6 +311,7 @@ class LoggedOutStep3 extends React.Component {
                   if (this.state.formValidation)
                     this.setState({ formValidation: null });
                 }}
+                defaultValue={this.profile.userName}
               />
             </View>
             <View style={styles.inpSt}>
@@ -323,6 +333,7 @@ class LoggedOutStep3 extends React.Component {
                   if (this.state.formValidation)
                     this.setState({ formValidation: null });
                 }}
+                defaultValue={this.profile.email}
               />
             </View>
             <Text
@@ -342,10 +353,10 @@ class LoggedOutStep3 extends React.Component {
             activeOpacity={0.9}
             style={styles.btPost}
             onPress={async () => {
+              this.setState({ loading: true });
               await this.Verification();
               this.state.formValidation && this.ajoutProfil();
             }}
-            disabled={this.state.acceptChange}
           >
             {this.renderLoading()}
           </TouchableOpacity>
@@ -391,11 +402,11 @@ const styles = StyleSheet.create({
     textAlign: "justify",
     paddingLeft: 15,
     paddingRight: 15,
-    fontSize: 25,
+    fontSize: 20,
     paddingBottom: 4,
     color: "black",
-    paddingTop: 15,
-    fontWeight: "bold"
+    paddingTop: 15
+    // fontWeight: "300"
   },
   choosepictureCont: {
     position: "absolute",

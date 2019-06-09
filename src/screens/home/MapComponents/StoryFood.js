@@ -19,6 +19,7 @@ import firebase from "react-native-firebase";
 import { color, dataFood } from "./MyData/Mydata";
 import T3Bbouton from "../../othersComponents/T3Bbouton";
 import { AnimatedCircularProgress } from "react-native-circular-progress";
+import { reactionAfterAction } from "../../othersComponents/RepetedFunctions/GroupeA";
 
 class StoryFood extends React.Component {
   constructor(props) {
@@ -26,14 +27,15 @@ class StoryFood extends React.Component {
 
     this.state = {
       loading: false,
-      isEnabled: true,
       imageLoad: false,
       showCommandeBouton: false,
       index: 0,
       quantite: 1,
       plusInfo: false,
       bgColor: "#000",
-      animHeigthCommande: new Animated.Value(0)
+      animHeigthCommande: new Animated.Value(0),
+      showerrorbuying: false,
+      errorBuying: true
     };
 
     this.onPress = this.props.onclick;
@@ -47,6 +49,23 @@ class StoryFood extends React.Component {
     };
     this.dimension = Dimensions.get("window");
   }
+  showBuyError = () => {
+    const hideerror = () => {
+      this.setState({ showerrorbuying: false });
+    };
+    this.setState({ showerrorbuying: true });
+    setTimeout(hideerror, 2500);
+  };
+
+  verificationBuying = () => {
+    if (this.user.id == this.item.userid) {
+      this.setState({
+        errorBuying: true,
+        loading: false,
+        showCommandeBouton: false
+      });
+    } else this.setState({ errorBuying: false });
+  };
 
   renderLoading() {
     if (this.state.loading == true) {
@@ -69,7 +88,7 @@ class StoryFood extends React.Component {
       .firestore()
       .collection("PlatPost")
       .doc(this.item.key);
-    await ref.update({ orders: firebase.firestore.FieldValue.increment(1) });
+    await ref.update({ orders: firebase.firestore.FieldValue.increment(this.state.quantite) });
   };
   sendNotification = async orderKey => {
     const value = (await this.item.price) * this.state.quantite;
@@ -105,7 +124,6 @@ class StoryFood extends React.Component {
     });
   };
   placeOrder = async () => {
-    await this.setState({ isEnabled: false });
     const ref = await firebase.firestore().collection("Orders");
     await ref
       .add({
@@ -115,7 +133,7 @@ class StoryFood extends React.Component {
         price: this.item.price,
         datePlaced: firebase.firestore.Timestamp.now(),
         buyer: {
-          name: this.item.name,
+          name: this.user.name,
           uid: this.user.id,
           picture: this.user.photo,
           phoneNumber: this.user.phone,
@@ -210,11 +228,13 @@ class StoryFood extends React.Component {
             style={{ color: color.addPlus, fontSize: 25 }}
           />
         </View>
-        <Text
-          style={{ fontSize: 20, fontWeight: "bold", color: color.addPlus }}
-        >
-          Commander maintenant
-        </Text>
+        {!this.state.showerrorbuying && (
+          <Text
+            style={{ fontSize: 20, fontWeight: "200", color: color.addPlus }}
+          >
+            Commander maintenant
+          </Text>
+        )}
       </TouchableOpacity>
     );
   };
@@ -244,7 +264,7 @@ class StoryFood extends React.Component {
               this.animationPan1();
               this.onPress();
             }}
-            style={{marginRight:10}}
+            style={{ marginRight: 2 }}
           >
             <Icon
               name="chevron-down"
@@ -263,7 +283,7 @@ class StoryFood extends React.Component {
               {"    "}
             </Text>
             <Text style={styles.infoTextStyle}>
-              {this.item.normalDate}
+              {this.item.normalDate.time_des}
               {"    "}
             </Text>
           </View>
@@ -315,7 +335,7 @@ class StoryFood extends React.Component {
                 {"    "}
               </Text>
 
-              <Text style={{}}>{this.item.normalDate}</Text>
+              <Text style={{}}>{this.item.normalDate.time_des}</Text>
             </View>
           </View>
 
@@ -324,7 +344,6 @@ class StoryFood extends React.Component {
 
         <View style={styles.bfchoseqan}>
           <Text style={styles.choseq}>Quantité{"    "}</Text>
-
           <View style={styles.contchoseq}>
             <Text
               style={styles.minus}
@@ -353,55 +372,38 @@ class StoryFood extends React.Component {
             </Text>
           </View>
         </View>
+        <View>
+          <Text style={styles.descr}>Description </Text>
 
-        <Text
-          style={{
-            fontSize: 18,
+          <Text>{this.item.description}</Text>
 
-            fontWeight: "bold"
-          }}
-          onPress={() => {
-            this.setState(prevState => ({ plusInfo: !prevState.plusInfo }));
-          }}
-        >
-          {this.state.plusInfo ? "-" : "+"} Informations
-        </Text>
-
-        {this.state.plusInfo && (
-          <View>
-            <Text style={styles.descr}>Description </Text>
-
-            <Text>{this.item.description}</Text>
-
-            <View style={styles.iaContainair}>
-              <View style={styles.iaView2}>
-                <View style={styles.iaViewIcon1}>
-                  <Image
-                    style={{ height: 60, width: 60, borderRadius: 30 }}
-                    resizeMode={"cover"}
-                    source={{ uri: this.item.userphoto }}
-                  />
-                </View>
-
-                <View style={{ paddingLeft: 15 }}>
-                  <Text style={styles.iaUserName}>
-                    {this.item.username}
-                    {"    "}
-                  </Text>
-                </View>
+          <View style={styles.iaContainair}>
+            <View style={styles.iaView2}>
+              <View style={styles.iaViewIcon1}>
+                <Image
+                  style={{ height: 60, width: 60, borderRadius: 30 }}
+                  resizeMode={"cover"}
+                  source={{ uri: this.item.userphoto }}
+                />
               </View>
 
-              <View style={styles.etoileView}>{this.renduEtoile(5)}</View>
+              <View style={{ paddingLeft: 15 }}>
+                <Text style={styles.iaUserName}>
+                  {this.item.username}
+                  {"    "}
+                </Text>
+              </View>
             </View>
+
+            <View style={styles.etoileView}>{this.renduEtoile(5)}</View>
           </View>
-        )}
+        </View>
         <TouchableOpacity
-          disabled={this.state.isEnabled}
           style={styles.btPost}
           activeOpacity={1}
           onPress={async () => {
-            await this.setState({ loading: true });
-            await this.placeOrder();
+            await this.verificationBuying();
+            !this.state.errorBuying ? this.placeOrder() : this.showBuyError();
           }}
         >
           {this.renderLoading()}
@@ -445,10 +447,7 @@ class StoryFood extends React.Component {
     this.user.id = user.uid;
     this.user.photo = user.photoURL;
     this.user.phone = user.phoneNumber;
-    if (this.user.id == this.item.userid) {
-      this.setState({ isEnabled: true });
-    } else {
-      this.setState({ isEnabled: false });
+    if (this.user.id != this.item.userid) {
       this.incrementViews();
     }
   }
@@ -561,6 +560,8 @@ class StoryFood extends React.Component {
           )}
         {this.state.bgColor == "#000" && this.addPlus()}
         {this.state.showCommandeBouton && this.buyFood()}
+        {this.state.showerrorbuying &&
+          reactionAfterAction("Impossible de commander votre propre plat")}
       </Animated.View>
     );
   }
@@ -635,22 +636,17 @@ const styles = StyleSheet.create({
 
     alignItems: "center"
   },
-
   iaViewIcon1: { height: 50, width: 50, borderRadius: 25 },
-
   iaIconUser: { color: "black", fontSize: 60 },
-
   iaUserName: { color: "black", fontWeight: "bold" },
 
   etoileView: {
     flexDirection: "row",
-
     justifyContent: "center",
-
     alignItems: "center"
   },
 
-  etoile: { color: "yellow", fontSize: 14 },
+  etoile: { color: "#f1c40f", fontSize: 16 },
 
   bymain: {
     position: "absolute",
@@ -700,14 +696,11 @@ const styles = StyleSheet.create({
 
   bfchoseqan: {
     alignItems: "center",
-
     justifyContent: "space-between",
-
     flexDirection: "row"
   },
 
   choseq: { color: "black", fontWeight: "bold", fontSize: 18 },
-
   contchoseq: {
     alignItems: "center",
 
@@ -754,17 +747,13 @@ const styles = StyleSheet.create({
 
   plus: {
     textAlign: "center",
-
     textAlignVertical: "center",
-
     fontSize: 20,
-
     paddingRight: 3,
-
     flex: 1
   },
 
-  descr: { fontSize: 15, color: "black", fontWeight: "600" },
+  descr: { fontSize: 18, color: "black", fontWeight: "600" },
 
   textPost: {
     textAlign: "center",

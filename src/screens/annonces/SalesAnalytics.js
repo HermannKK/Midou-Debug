@@ -22,7 +22,7 @@ class SalesAnalytics extends React.Component {
         {this.data.length == 0 ? (
           <View style={styles.Nocommande}>
             <Text style={styles.textStyle}>
-              Aucune vente n'a été realisé{" "}
+              Vos statistiques sont en cours de traitement {" "}
             </Text>
           </View>
         ) : (

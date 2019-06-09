@@ -13,7 +13,7 @@ import {
   ActivityIndicator,
   Alert
 } from "react-native";
-// import LinearGradient from "react-native-linear-gradient";
+import LinearGradient from "react-native-linear-gradient";
 import { Icon } from "native-base";
 
 const styles = StyleSheet.create({
@@ -46,14 +46,14 @@ const styles = StyleSheet.create({
   }
 });
 
-// export const degrader = (props) => (
-//   <LinearGradient
-//     // start={{ x: 0, y: 0 }}
-//     // end={{ x: 1, y: 0 }}
-//     colors={props}
-//     style={styles.degradestyle}
-//   />
-// );
+export const degrader = (props) => (
+  <LinearGradient
+    // start={{ x: 0, y: 0 }}
+    // end={{ x: 1, y: 0 }}
+    colors={props}
+    style={styles.degradestyle}
+  />
+);
 
 export const reactionAfterAction = props => (
   <View style={styles.ReactionAfterActionCont}>

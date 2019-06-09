@@ -14,9 +14,9 @@ import {
 } from "react-native";
 import { connect } from "react-redux";
 import OneAnnonce from "./OneAnnonce";
-import { dataOneAnnonce } from "../home/MapComponents/MyData/Mydata";
 import TextButton from "../othersComponents/TextButton";
 import { convertDate } from "../../functionsRu/groupeA";
+import { degrader } from "../othersComponents/RepetedFunctions/GroupeA";
 import firebase from "react-native-firebase";
 class EnCoursA extends React.Component {
   constructor(props) {
@@ -34,32 +34,30 @@ class EnCoursA extends React.Component {
     };
     this.is_cooker = this.props.is_cooker;
     this.userId = this.props.user_id;
-    this.data = [];
-  }
-
-  platQuery = async () => {
-    this.data = await [];
-    await console.log("started querry");
-    const ref = await firebase
+    this.unsubscribe = null;
+    this.ref = firebase
       .firestore()
       .collection("PlatPost")
       .where("userid", "==", this.userId)
       .where("active", "==", true);
-    await ref.get().then(async doc => {
-      await this.parseData(doc);
-    });
-    await console.log("finished querry");
-    await this.setState({ loading: false });
-  };
-  parseData = async querySnapshot => {
-    console.log("started parsing");
-    await querySnapshot.forEach(async doc => {
-      let _data = await doc.data();
-      let key = await doc.id;
+  }
+
+  parseData = querySnapshot => {
+    let data = [];
+    querySnapshot.forEach(doc => {
+      let _data = doc.data();
+      let key = doc.id;
       let normalDate = convertDate(_data.date.toDate());
-      await this.data.push({ ..._data, key, normalDate });
+      data.push({ ..._data, key, normalDate });
     });
-    await console.log("finished parsing");
+    data
+      .sort(function(a, b) {
+        return (
+          a.normalDate.datefull.getTime() - b.normalDate.datefull.getTime()
+        );
+      })
+      .reverse();
+    this.setState({ data, loading: false });
   };
 
   _onRefresh = async () => {
@@ -68,10 +66,10 @@ class EnCoursA extends React.Component {
       this.setState({ refreshing: false });
     });
   };
-
-  componentWillMount = async () => {
-    await this.platQuery();
-  };
+  componentDidMount() {
+    this.unsubscribe = this.ref.onSnapshot(this.parseData);
+    console.log(this.data);
+  }
 
   doNewPost = () => {
     return (
@@ -140,30 +138,31 @@ class EnCoursA extends React.Component {
     });
   };
   render() {
+    console.log(this.state.data);
     return (
       <View style={styles.mainContainer}>
-        {this.state.loading ? (
+        {!this.is_cooker ? (
+          <TextButton />
+        ) : this.state.loading ? (
           <ActivityIndicator size="large" color="#F1592A" />
-        ) : this.data.length == 0 ? (
+        ) : this.state.data.length == 0 ? (
           <View style={styles.Nocommande}>
             <Text style={styles.textStyle}>
-              Vous n'avez pas d'anciennes Annonces{" "}
+              Vous n'avez pas d'annonces en cours{" "}
             </Text>
           </View>
         ) : (
           <View style={styles.mainContainer}>
             <ScrollView style={{ paddingTop: 5, paddingBottom: 50 }}>
               <FlatList
-                data={this.data}
+                data={this.state.data}
                 keyExtractor={item => item.key}
-                // numColumns={2}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={this.state.refreshing}
-                    onRefresh={this._onRefresh}
-                  />
-                }
-                // ItemSeparatorComponent={this.renderSeparator}
+                // refreshControl={
+                //   <RefreshControl
+                //     refreshing={this.state.refreshing}
+                //     onRefresh={this._onRefresh}
+                //   />
+                // }
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     activeOpacity={0.95}
@@ -178,8 +177,11 @@ class EnCoursA extends React.Component {
                       resizeMethod={"auto"}
                       source={{ uri: item.pictures[0] }}
                     />
+                    {degrader(["#000", "transparent", "#000"])}
                     <Text style={styleA.PlatNameStyle}>{item.name}</Text>
-                    <Text style={styleA.datePost}>{item.normalDate.time_des}</Text>
+                    <Text style={styleA.datePost}>
+                      {item.normalDate.time_des}
+                    </Text>
                     <View style={styleA.priceVue}>
                       <Icon
                         name="eye"
@@ -237,7 +239,7 @@ const styleA = StyleSheet.create({
     borderRadius: 7
   },
   PlatNameStyle: {
-    fontSize: 28,
+    fontSize: 23,
     fontWeight: "300",
     color: "white",
     position: "absolute",
@@ -249,7 +251,7 @@ const styleA = StyleSheet.create({
     textAlignVertical: "center"
   },
   datePost: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "100",
     color: "white",
     position: "absolute",
@@ -269,12 +271,12 @@ const styleA = StyleSheet.create({
     justifyContent: "center"
   },
   iconStyle: {
-    fontSize: 20,
+    fontSize: 16,
     color: "white"
   },
   vue: { flexDirection: "row", alignItems: "center", justifyContent: "center" },
   vuetext: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "100",
     color: "white",
     marginLeft: 3

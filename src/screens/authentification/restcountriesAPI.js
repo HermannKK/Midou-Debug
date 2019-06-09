@@ -37,42 +37,6 @@ export async function getFlagOnCountry(text) {
   }
 }
 
-// export async function apidataPositionChoisi(props) {
-//   try {
-//     const url =
-//       "http://api.geonames.org/findNearbyPlaceNameJSON?lat=" +
-//       props[1] +
-//       "&lng=" +
-//       props[0] +
-//       "&username=alain1234&style=full";
-//     const reponse = await fetch(url);
-//     const result = await reponse;
-//     const aRendre = await result
-//     return aRendre;
-//   } catch (error) {
-//     console.error(error);
-//   }
-// }
-
-export function apidataPositionChoisi(location, props) {
-  const geonames = new Geonames({
-    username: "alain1234",
-    lan: "en",
-    encoding: "JSON"
-  });
-  const _pos = { lng: location[0], lat: location[1] };
-  geonames
-    .findNearbyPlaceName(_pos)
-    .then(async loc => {
-      const country = loc.geonames[0].countryName || null;
-      const district = loc.geonames[0].adminName1 || null;
-      const code = loc.geonames[0].countryCode || null;
-      return await { code, country, district };
-    })
-    .catch(function(err) {
-      return err.message;
-    });
-}
 
 function countrydata(country) {
   return {

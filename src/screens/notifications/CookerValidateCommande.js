@@ -60,8 +60,8 @@ class CookerValidateCommande extends React.Component {
         key={"customer location"}
         id={"customer location"}
         coordinate={[
-          this.state.data.buyer.localisation.longitude,
-          this.state.data.buyer.localisation.latitude
+          this.state.data.buyer.localisation.latitude,
+          this.state.data.buyer.localisation.longitude
         ]}
       >
         <View>
@@ -93,8 +93,8 @@ class CookerValidateCommande extends React.Component {
         zoomLevel={zomLevel}
         maxZoomLevel={zomLevel}
         centerCoordinate={[
-          this.state.data.buyer.localisation.longitude,
-          this.state.data.buyer.localisation.latitude
+          this.state.data.buyer.localisation.latitude,
+          this.state.data.buyer.localisation.longitude
         ]}
         style={styles.mapViewContainer}
         rotateEnabled={false}
@@ -180,7 +180,7 @@ class CookerValidateCommande extends React.Component {
     return (
       <View style={styles.mpConatiner}>
         <Icon
-          name="cash-multiple"
+          name="cash"
           type="MaterialCommunityIcons"
           style={styles.mpIcon}
         />
@@ -403,7 +403,7 @@ class CookerValidateCommande extends React.Component {
     console.log("rendering");
     console.log(this.state.data);
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1,backgroundColor:'#fff' }}>
         {this.state.loading ? (
           <View style={{ flex: 1 }}>
             <ScrollView style={styles.container}>
@@ -456,7 +456,7 @@ class CookerValidateCommande extends React.Component {
 }
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#ecf0f1",
+    backgroundColor: "#fff",
     flex: 1
   },
   cmLocationImageStyle: { width: 30, height: 30 },
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
   tvPrice: {
     fontSize: 25,
     fontWeight: "bold",
-    color: "black"
+    color: color.orange
   },
   tvIcon: { color: "#a4b0be", fontSize: 25 },
   ivContenair: {
@@ -531,7 +531,7 @@ const styles = StyleSheet.create({
     height: 36
   },
   ivText: { color: "black" },
-  ivTotal: { color: "black", fontWeight: "bold" },
+  ivTotal: { color: 'black', fontWeight: "bold" },
   mpConatiner: {
     height: 50,
     flexDirection: "row",
@@ -543,7 +543,7 @@ const styles = StyleSheet.create({
   mpIcon: { color: "#a4b0be", fontSize: 30 },
   mpText: {
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#a4b0be",
     paddingLeft: 10
   },

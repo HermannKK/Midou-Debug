@@ -11,20 +11,24 @@ import Mapbox from "@mapbox/react-native-mapbox-gl";
 import Geolocation from "@react-native-community/geolocation";
 import { hasLocationPermission } from "../home/MapComponents/Permissions/PermissionFiles";
 import { color } from "../home/MapComponents/MyData/Mydata";
+import Geonames from "geonames.js";
 Mapbox.setAccessToken(
   "pk.eyJ1IjoiYWxpbm8xOTk4IiwiYSI6ImNqcHdvdG13ZjBkb280OHIxZTV6dDVvOWUifQ.IqCLhCar6dlPsSXwPQbE3A"
 );
-import {apidataPositionChoisi} from '../authentification/restcountriesAPI'
+// import { apidataPositionChoisi } from "../authentification/restcountriesAPI";
 class PlatLocation extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       location: [-6.843266, 34.007651],
       locationChoseToShowFood: null,
-      mapRendu: false
+      mapRendu: false,
+      dataPosition: {},
+      loading: false
     };
     this.onPress = this.props.onPress;
     this.closeMap = this.props.closeMap;
+    this.return_data = {};
   }
 
   takeUserPosition = async () => {
@@ -46,6 +50,37 @@ class PlatLocation extends React.Component {
       );
     }
   };
+
+  apidataPositionChoisi = location => {
+    const geonames = new Geonames({
+      username: "alain1234",
+      lan: "en",
+      encoding: "JSON"
+    });
+    const _pos = { lng: location[0], lat: location[1] };
+    geonames
+      .findNearbyPlaceName(_pos)
+      .then(async loc => {
+        const country = loc.geonames[0].countryName || null;
+        const district = loc.geonames[0].adminName1 || null;
+        const code = loc.geonames[0].countryCode || null;
+        await this.setState({ dataPosition: { code, country, district } });
+      })
+      .catch(function(err) {
+        console.log(err.message);
+      });
+  };
+
+  trasmitData = async () => {
+    this.setState({ loading: true });
+    const passData = () => {
+      const dataPosition = this.state.dataPosition;
+      this.onPress({ center, dataPosition });
+    };
+    const center = await this._map.getCenter();
+    await this.apidataPositionChoisi(center);
+    setTimeout(passData, 1500);
+  };
   BoutonToChoosePosition = () => {
     return (
       <TouchableOpacity
@@ -62,17 +97,17 @@ class PlatLocation extends React.Component {
           left: 0,
           height: 60
         }}
-        onPress={async () => {
-          const center = await this._map.getCenter();
-          let datapos
-          await apidataPositionChoisi(center,datapos)
-          console.log(datapos)
-          await this.onPress(center);
+        onPress={() => {
+          this.trasmitData();
         }}
       >
-        <Text style={{ fontSize: 20, color: "white" }}>
-          Choose food location
-        </Text>
+        {this.state.loading ? (
+          <ActivityIndicator size="large" color="white" />
+        ) : (
+          <Text style={{ fontSize: 20, color: "white" }}>
+            Choose food location
+          </Text>
+        )}
       </TouchableOpacity>
     );
   };
@@ -153,6 +188,7 @@ class PlatLocation extends React.Component {
     this.takeUserPosition();
   }
   render() {
+    console.log(this.state.dataPosition);
     return (
       <View
         style={{
@@ -170,7 +206,7 @@ class PlatLocation extends React.Component {
       >
         <Mapbox.MapView
           styleURL={Mapbox.StyleURL.Street}
-          minZoomLevel={10}
+          minZoomLevel={6}
           zoomLevel={13}
           maxZoomLevel={18}
           showUserLocation={true}

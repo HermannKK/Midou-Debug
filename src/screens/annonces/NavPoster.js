@@ -10,7 +10,7 @@ const NavPs = createStackNavigator(
       screen: Poster,
       navigationOptions: function({ navigation }) {
         return {
-          title: "Nouveau post",
+          title: "Nouvelle Annonce",
           headerLeft: <BackBouton goback={navigation} />
         };
       }

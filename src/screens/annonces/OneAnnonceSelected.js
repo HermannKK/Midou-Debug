@@ -27,7 +27,7 @@ class OneAnnonceSelected extends React.Component {
                 <View>
                   <Text style={styles.summaryTitle}>Ventes</Text>
                   <Text style={styles.summaryContentA}>
-                    DH {this.state.data.price * this.state.data.orders}
+                    MAD {this.state.data.price * this.state.data.orders}
                   </Text>
                 </View>
                 <View>
@@ -56,10 +56,6 @@ class OneAnnonceSelected extends React.Component {
                 title={"Vos repas"}
                 image={this.state.data.pictures[0]}
               />
-              <Text>
-                ({this.state.data.localisation.latitude};
-                {this.state.data.localisation.longitude})
-              </Text>
               <Text style={[styles.mainTextStyle, { marginTop: 10 }]}>
                 Date:{" "}
                 <Text style={styles.boldText}>
@@ -110,23 +106,23 @@ const styles = StyleSheet.create({
   },
   boldTextHeader: {
     fontSize: 17,
-    fontWeight: "bold",
+    fontWeight: "200",
     color: "black",
     paddingTop: 10
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: "bold"
+    // fontWeight: "bold"
   },
   summaryContentA: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#0DB37E"
+    fontSize: 20,
+    // fontWeight: "bold",
+    // color: "#0DB37E",
+    color: "#EE5A24"
   },
   summaryContentB: {
-    fontSize: 24,
-    fontWeight: "bold",
-    // color: "#FF5326",
+    fontSize: 20,
+    // fontWeight: "bold",
     color: "black"
   },
   alldetailsCon: {

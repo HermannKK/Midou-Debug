@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  StyleSheet,
-  View,
-  Image,
-  Dimensions,
-} from "react-native";
+import { StyleSheet, View, Image, Dimensions,Text } from "react-native";
 import { Icon } from "native-base";
 import Mapbox from "@mapbox/react-native-mapbox-gl";
 Mapbox.setAccessToken(
@@ -17,54 +12,55 @@ class MapPosition extends React.Component {
     this.state = {};
     this.customerPosition = [-6.8438266, 34.0097651];
     this.dimension = Dimensions.get("window");
-    this.donne={height:130,zomLevel:10,position:[-6.8438266, 34.0097651],title:'Votre client'}
+    this.donne = {
+      height: 130,
+      zomLevel: 10,
+      position: [-6.8438266, 34.0097651],
+      title: "Votre client"
+    };
   }
 
   render() {
-    const {height,zomLevel,position,title,image}=this.props
+    const { height, zomLevel, position, title, image } = this.props;
     return (
-      <Mapbox.MapView
-        styleURL={Mapbox.StyleURL.Street}
-        minZoomLevel={zomLevel}
-        zoomLevel={zomLevel}
-        maxZoomLevel={zomLevel}
-        centerCoordinate={position}
-        style={[styles.mapViewContainer,{height:height}]}
-        rotateEnabled={false}
-        scrollEnabled={false}
-        logoEnabled={false}
-        attributionEnabled={false}
-      >
-        <Mapbox.PointAnnotation
-          key={title}
-          id={title}
-          coordinate={position}
+      <View style={styles.mapViewContainer}>
+        <Mapbox.MapView
+          styleURL={Mapbox.StyleURL.Street}
+          minZoomLevel={zomLevel}
+          zoomLevel={zomLevel}
+          maxZoomLevel={zomLevel}
+          centerCoordinate={position}
+          style={[styles.mapViewContainer, { height: height }]}
+          rotateEnabled={false}
+          scrollEnabled={false}
+          logoEnabled={false}
+          attributionEnabled={false}
         >
-          <View style={styles.imageCon}>
-            {/* <Icon
-              name="location-pin"
-              type="Entypo"
-              style={{ color: color.orange, fontSize: 40 }}
-            /> */}
-            <Image
-              style={styles.cmLocationImageStyle}
-              resizeMode={"cover"}
-              source={{uri:image}}
+          <Mapbox.PointAnnotation key={title} id={title} coordinate={position}>
+            <View style={styles.imageCon}>
+              <Image
+                style={styles.cmLocationImageStyle}
+                resizeMode={"cover"}
+                source={{ uri: image }}
+              />
+            </View>
+            <Mapbox.Callout
+              title={title}
+              contentStyle={styles.calloutContentStyle}
+              textStyle={styles.calloutTextStyle}
             />
-          </View>
-          <Mapbox.Callout
-            title={title}
-            contentStyle={styles.calloutContentStyle}
-            textStyle={styles.calloutTextStyle}
-          />
-        </Mapbox.PointAnnotation>
-      </Mapbox.MapView>
+          </Mapbox.PointAnnotation>
+        </Mapbox.MapView>
+        <Text style={{paddingLeft:4}}>
+          ({Math.round(position[0]*10**6)/10**6} ; {Math.round(position[1]*10**6)/10**6} )
+        </Text>
+      </View>
     );
   }
 }
 const styles = StyleSheet.create({
   cmLocationImageStyle: { width: 40, height: 40, borderRadius: 20 },
-  imageCon:{
+  imageCon: {
     justifyContent: "center",
     alignItems: "center",
     width: 40

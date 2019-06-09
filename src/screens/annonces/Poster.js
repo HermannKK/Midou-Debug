@@ -38,7 +38,8 @@ class Poster extends React.Component {
         nom: null,
         position: [],
         PlatPhoto: [],
-        userPhoto: null
+        userPhoto: null,
+        dataPosition: {}
       },
       currentUserPosteurID: null,
       NumeroPhonePosteur: null,
@@ -81,7 +82,8 @@ class Poster extends React.Component {
     localisationX,
     localisationY,
     Prix,
-    UserID
+    UserID,
+    dataPosition
   ) => {
     await this.setState({ loading: true });
     const picturesURL = [];
@@ -134,7 +136,8 @@ class Poster extends React.Component {
         userphone: NumeroPhone,
         active: true,
         categorie: categorie,
-        pushToken: pushToken
+        pushToken: pushToken,
+        dataPosition: dataPosition
       })
       .then(async succes => {
         await this.setState({ loading: false }),
@@ -308,7 +311,9 @@ class Poster extends React.Component {
   };
 
   takeposition = props => {
-    this.dataPlat.plat.position = props;
+    console.log(props);
+    this.dataPlat.plat.position = props.center;
+    this.dataPlat.plat.dataPosition = props.dataPosition;
     this.setState({ choosePlatPosition: false });
   };
 
@@ -341,7 +346,7 @@ class Poster extends React.Component {
       this.setState({ posterror: false });
     };
     this.setState({ posterror: true, loading: false });
-    setTimeout(hideerror, 2000);
+    setTimeout(hideerror, 3000);
   };
 
   componentDidMount() {
@@ -386,116 +391,124 @@ class Poster extends React.Component {
         });
       }}
     />;
-    if (!this.is_cooker) {
-      return (
-        <View style={{ flex: 1 }}>
-          <TextButton
-            headText={this.noCU.HeadText}
-            secondText={this.noCU.secondText}
-            boutonText={this.noCU.boutonText}
-            fc={this.whenNoCusinier}
-          />
-        </View>
-      );
-    }
     return (
       <View style={{ flex: 1 }}>
-        <KeyboardAvoidingView style={styles.mainContainer} behavior={"height"}>
-          <ScrollView keyboardDismissMode={"on-drag"}>
-            <View style={styles.conImagePlat}>
-              {this.RenduImageSelection()}
-            </View>
-            <View style={{ paddingTop: 20 }}>
-              <Text style={styles.headInfo}>Nom du plat</Text>
-              <TextInput
-                defaultValue={this.dataPlat.plat.nom}
-                style={styles.textInGen}
-                maxLength={50}
-                multiline={false}
-                keyboardType={"default"}
-                placeholder={"exemple: Tajine au poulet"}
-                onChangeText={text => (this.dataPlat.plat.nom = text)}
-              />
-              <Text style={styles.headInfo}>Catégorie</Text>
-              <TextInput
-                defaultValue={this.dataPlat.plat.categorie}
-                style={styles.textInGen}
-                maxLength={50}
-                multiline={false}
-                keyboardType={"default"}
-                placeholder={"exemple: Marocain"}
-                onChangeText={text => (this.dataPlat.plat.categorie = text)}
-              />
-              <Text style={styles.headInfo}>Description et ingredients</Text>
-              <TextInput
-                style={[
-                  styles.textInGen,
-                  {
-                    height: 100,
-                    textAlign: "justify",
-                    textAlignVertical: "top"
+        {this.is_cooker ? (
+          <KeyboardAvoidingView
+            style={styles.mainContainer}
+            behavior={"height"}
+          >
+            <ScrollView keyboardDismissMode={"on-drag"}>
+              <View style={styles.conImagePlat}>
+                {this.RenduImageSelection()}
+              </View>
+              <View style={{ paddingTop: 20 }}>
+                <Text style={styles.headInfo}>Nom du plat</Text>
+                <TextInput
+                  defaultValue={this.dataPlat.plat.nom}
+                  style={styles.textInGen}
+                  maxLength={50}
+                  multiline={false}
+                  keyboardType={"default"}
+                  placeholder={"exemple: Tajine au poulet"}
+                  onChangeText={text => (this.dataPlat.plat.nom = text)}
+                />
+                <Text style={styles.headInfo}>Catégorie</Text>
+                <TextInput
+                  defaultValue={this.dataPlat.plat.categorie}
+                  style={styles.textInGen}
+                  maxLength={50}
+                  multiline={false}
+                  keyboardType={"default"}
+                  placeholder={"exemple: maghrébine"}
+                  onChangeText={text => (this.dataPlat.plat.categorie = text)}
+                />
+                <Text style={styles.headInfo}>Description et ingredients</Text>
+                <TextInput
+                  style={[
+                    styles.textInGen,
+                    {
+                      height: 100,
+                      textAlign: "justify",
+                      textAlignVertical: "top"
+                    }
+                  ]}
+                  defaultValue={this.dataPlat.plat.description}
+                  maxLength={1000}
+                  multiline={true}
+                  placeholder={
+                    "exemple: Mon plat est et d'origine marocaine\nIngrédients\n-tomates\n-épices"
                   }
-                ]}
-                defaultValue={this.dataPlat.plat.description}
-                maxLength={1000}
-                multiline={true}
-                placeholder={
-                  "exemple: Mon plat est le meilleur des plats\n-tomates\n-épices"
-                }
-                keyboardType={"default"}
-                onChangeText={text => (this.dataPlat.plat.description = text)}
-              />
-              <Text style={styles.headInfo}>Prix (MAD)</Text>
-              <TextInput
-                defaultValue={this.dataPlat.plat.Prix}
-                style={styles.textInGen}
-                maxLength={5}
-                multiline={false}
-                placeholder={"exemple: 25"}
-                keyboardType={"numeric"}
-                onChangeText={text => (this.dataPlat.plat.Prix = text)}
-              />
-              <Text style={styles.headInfo}>Localisation</Text>
-              <TouchableOpacity
-                style={[styles.textInGen, { justifyContent: "center" }]}
-                activeOpacity={1}
-                onPress={() => {
-                  this.setState({ choosePlatPosition: true });
-                }}
-              >
-                {this.dataPlat.plat.position.length == 2 && (
-                  <Text style={{ fontSize: 16 }}>
-                    ({this.dataPlat.plat.position[0]},
-                    {this.dataPlat.plat.position[1]})
-                  </Text>
+                  keyboardType={"default"}
+                  onChangeText={text => (this.dataPlat.plat.description = text)}
+                />
+                <Text style={styles.headInfo}>Prix (MAD)</Text>
+                <TextInput
+                  defaultValue={this.dataPlat.plat.Prix}
+                  style={styles.textInGen}
+                  maxLength={5}
+                  multiline={false}
+                  placeholder={"exemple: 25"}
+                  keyboardType={"numeric"}
+                  onChangeText={text => (this.dataPlat.plat.Prix = text)}
+                />
+                <Text style={styles.headInfo}>Localisation</Text>
+                <TouchableOpacity
+                  style={[styles.textInGen, { justifyContent: "center" }]}
+                  activeOpacity={1}
+                  onPress={() => {
+                    this.setState({ choosePlatPosition: true });
+                  }}
+                >
+                  {this.dataPlat.plat.position.length == 2 ? (
+                    <Text style={{ fontSize: 16 }}>
+                      {this.dataPlat.plat.dataPosition.district} (
+                      {Math.round(this.dataPlat.plat.position[0] * 10 ** 6) /
+                        10 ** 6}
+                      {" ; "}
+                      {Math.round(this.dataPlat.plat.position[1] * 10 ** 6) /
+                        10 ** 6}{" "}
+                      ){" "}
+                    </Text>
+                  ) : (
+                    <Text style={{ fontSize: 16 }}>
+                      {" "}
+                      exemple: Rabat (-6.24000 ; 34.00256){" "}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+                {!this.state.posterror && (
+                  <TouchableOpacity
+                    style={styles.btPost}
+                    activeOpacity={1}
+                    onPress={async () => {
+                      await this.setState({ loading: true });
+                      await this.postValidation();
+                      this.state.validPost
+                        ? this.AjoutPoste(
+                            this.dataPlat.UserNamePosteur,
+                            this.dataPlat.NumeroPhonePosteur,
+                            this.dataPlat.plat.categorie,
+                            this.dataPlat.plat.description,
+                            this.dataPlat.plat.nom,
+                            this.dataPlat.plat.position[0],
+                            this.dataPlat.plat.position[1],
+                            this.dataPlat.plat.Prix,
+                            this.dataPlat.currentUserPosteurID,
+                            this.dataPlat.plat.dataPosition
+                          )
+                        : this.showPostError();
+                    }}
+                  >
+                    {this.renderLoading()}
+                  </TouchableOpacity>
                 )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.btPost}
-                activeOpacity={1}
-                onPress={async () => {
-                  await this.setState({ loading: true });
-                  await this.postValidation();
-                  this.state.validPost
-                    ? this.AjoutPoste(
-                        this.dataPlat.UserNamePosteur,
-                        this.dataPlat.NumeroPhonePosteur,
-                        this.dataPlat.plat.categorie,
-                        this.dataPlat.plat.description,
-                        this.dataPlat.plat.nom,
-                        this.dataPlat.plat.position[0],
-                        this.dataPlat.plat.position[1],
-                        this.dataPlat.plat.Prix,
-                        this.dataPlat.currentUserPosteurID
-                      )
-                    : this.showPostError();
-                }}
-              >
-                {this.renderLoading()}
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
+              </View>
+            </ScrollView>
+          </KeyboardAvoidingView>
+        ) : (
+          <TextButton />
+        )}
         {this.state.choosePlatPosition && (
           <PlatLocation onPress={this.takeposition} closeMap={this.closeMap} />
         )}

@@ -18,18 +18,6 @@ import NavPoster from "../annonces/NavPoster";
 import CustomDrawerContentComponent from "../othersComponents/CustomDrawerContentComponent";
 //FinComponents
 
-this.state = {
-  loading: true,
-  isKnown: false
-};
-
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    const _name = firebase.auth().currentUser.displayName;
-    this.state.isKnown = _name ? true : false;
-  }
-});
-
 const _DrawerCuisinier = createDrawerNavigator(
   {
     Accueil: { screen: Home, navigationOptions: { title: "Accueil    " } },
@@ -65,32 +53,21 @@ const _DrawerCuisinier = createDrawerNavigator(
   }
 );
 
-const _DrawerAcheteur = createDrawerNavigator(
-  {
-    Accueil: { screen: Home }
-  },
-  {
-    initialRouteName: "Accueil",
-    drawerPosition: "left",
-    contentComponent: CustomDrawerContentComponent,
-    drawerOpenRoute: "DrawerOpen",
-    drawerCloseRoute: "DrawerClose",
-    drawerToggleRoute: "DrawerToggle",
-    contentOptions: {
-      activeTintColor: "#f96138"
-    }
+let isKnown = false;
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    const _name = firebase.auth().currentUser.displayName;
+    isKnown = _name ? true : false;
   }
-);
+});
 
-const DrawerAcheteur = createAppContainer(_DrawerAcheteur);
 const DrawerCuisinier = createAppContainer(_DrawerCuisinier);
-const Drawer = this.state.etat === "0" ? DrawerAcheteur : DrawerCuisinier;
-const _initialRoute = this.state.isKnown ? "Drawer" : "Step3"; //depasser la page dínscription
+const _initialRoute = isKnown ? "Drawer" : "Step3";
 
 const Stack = createStackNavigator(
   {
     Home: { screen: Home },
-    Drawer: Drawer,
+    Drawer: DrawerCuisinier,
     Step3: { screen: LoggedOutStep3 }
   },
   {

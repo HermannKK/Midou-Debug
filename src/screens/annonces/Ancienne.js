@@ -47,9 +47,9 @@ class AncienneA extends React.Component {
   };
   parseData = async querySnapshot => {
     await querySnapshot.forEach(async doc => {
-      const _data =  doc.data();
-      const  key =  doc.id;
-      const  normalDate = convertDate(_data.date.toDate());
+      const _data = doc.data();
+      const key = doc.id;
+      const normalDate = convertDate(_data.date.toDate());
       await this.data.push({ ..._data, key, normalDate });
     });
   };
@@ -68,7 +68,7 @@ class AncienneA extends React.Component {
   clickAnnonce = props => {
     this.props.navigation.navigate("OneAnnonceSelected", {
       dataAnnonce: props,
-      RightButtondata:null
+      RightButtondata: null
     });
   };
   renderSeparator = () => {
@@ -76,7 +76,7 @@ class AncienneA extends React.Component {
       <View
         style={{
           height: 1,
-          width: '100%',
+          width: "100%",
           backgroundColor: "#bdc3c7"
         }}
       />
@@ -86,7 +86,9 @@ class AncienneA extends React.Component {
   render() {
     return (
       <View style={{ flex: 1 }}>
-        {this.state.loading ? (
+        {!this.is_cooker ? (
+          <TextButton />
+        ) : this.state.loading ? (
           <ActivityIndicator size="large" color="#F1592A" />
         ) : this.data.length == 0 ? (
           <View style={styles.Nocommande}>

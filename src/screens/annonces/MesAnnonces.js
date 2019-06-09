@@ -29,7 +29,7 @@ const TabAnnonces = createMaterialTopTabNavigator(
     SalesAnalytics: {
       screen: SalesAnalytics,
       navigationOptions: {
-        title: "Analytics"
+        title: "Statistiques"
       }
     }
   },

@@ -72,5 +72,5 @@ export const convertDate = dateObject => {
       time_des = time_des + " jour";
     } else time_des = time_des + " jours";
   } else time_des = formatdate.formattedDate;
-  return { time_des, ...formatdate, isRecent };
+  return { time_des, ...formatdate, isRecent,datefull };
 };

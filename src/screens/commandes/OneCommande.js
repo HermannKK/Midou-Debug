@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "native-base";
 import { Text, View, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { tabImage, cookerImage } from "../home/MapComponents/MyData/Mydata";
+import { color} from "../home/MapComponents/MyData/Mydata";
 class OneCommande extends React.Component {
   constructor(props) {
     super(props);
@@ -11,7 +11,7 @@ class OneCommande extends React.Component {
     fc = this.props.fc;
     return (
       <TouchableOpacity
-        activeOpacity={0.8}
+        activeOpacity={0.9}
         style={styles.mainContainer}
         onPress={() => {
           fc(this.data);
@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
   },
   globalContainerVoir_icon: {
     borderRadius: 15,
-    backgroundColor: "#2897f3",
+    backgroundColor:color.orange,
     justifyContent: "center",
     alignItems: "center",
     height: 30,

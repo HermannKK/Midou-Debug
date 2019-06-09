@@ -45,7 +45,7 @@ class TestBulle extends Component {
                   {this.state.info.name}
                 </Text>
                 <Text style={styles.infoTextStyle}>
-                {this.state.info.normalDate}
+                {this.state.info.normalDate.time_des} á {this.state.info.dataPosition.district} 
                 </Text>
               </View>
               <View style={styles.globalContainerVoir_icon}>
@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   infoTextStyle: {
     flex: 1,
     color: "gray",
-    fontSize: 13
+    fontSize: 13,
   },
   globalContainerVoir_icon: {
     flex: 1,
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'white',
     borderRadius: 15,
-    backgroundColor:color.bleu
+    backgroundColor:color.orange
   },
   iconStyle: {
     fontSize: 20,

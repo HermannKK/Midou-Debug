@@ -18,6 +18,7 @@ import { hasLocationPermission } from "./Permissions/PermissionFiles";
 import TestBulle from "./TestBulle";
 import StoryFood from "./StoryFood";
 import { dataFood, color } from "./MyData/Mydata";
+import { convertDate } from "../../../functionsRu/groupeA";
 import firebase from "react-native-firebase";
 Mapbox.setAccessToken(
   "pk.eyJ1IjoiYWxpbm8xOTk4IiwiYSI6ImNqcHdvdG13ZjBkb280OHIxZTV6dDVvOWUifQ.IqCLhCar6dlPsSXwPQbE3A"
@@ -57,22 +58,15 @@ class RenderMap extends Component {
   };
   parseData = async querrySnapshot => {
     await querrySnapshot.forEach(async doc => {
-      let _data = await doc.data();
-      let key = await doc.id;
-      let normalDate = await this.convertToDate(_data.date.toDate());
+      let _data = doc.data();
+      let key = doc.id;
+      let normalDate = convertDate(_data.date.toDate());
       await this.data.push({ ..._data, key, normalDate });
     });
     console.log(this.data);
     await this.setState({ data: this.data });
   };
 
-  convertToDate = async dateObject => {
-    const d = await dateObject.getDate();
-    const m = (await dateObject.getMonth()) + 1;
-    const y = await dateObject.getFullYear();
-    const newDate = (await d) + "/" + m + "/" + y;
-    return newDate;
-  };
 
   animToLocation = props => {
     Animated.timing(this.state.animToReturnLocation, {

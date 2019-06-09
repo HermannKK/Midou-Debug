@@ -27,6 +27,7 @@
     "react-native-firebase": "^5.3.1",
     "react-native-gesture-handler": "^1.1.0",
     "react-native-image-crop-picker": "^0.23.1",
+    "react-native-linear-gradient": "^2.5.4",
     "react-native-looped-carousel": "^0.1.13",
     "react-native-material-cards": "^1.0.9",
     "react-native-popup-menu": "^0.15.6",

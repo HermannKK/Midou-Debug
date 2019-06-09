@@ -38,47 +38,70 @@ class ContenuMesCommandes extends React.Component {
   parseData = async querySnapshot => {
     let recents = [];
     let ancs = [];
-    const last_query_id = querySnapshot.docs[querySnapshot.size - 1].id;
-    await querySnapshot.forEach(async doc => {
-      const _data = doc.data();
-      const normalDate = convertDate(_data.datePlaced.toDate());
-      const key = doc.id;
-      let imagePlat = [];
-      let cookerInfo = {};
-      let platLocation = [];
-      let PlatDescription = "";
-      await this.refPlat
-        .doc(_data.platKey)
-        .get()
-        .then(docP => {
-          docPlat = docP.data();
-          imagePlat = docPlat.pictures;
-          cookerInfo = { photo: docPlat.userphoto, name: docPlat.username };
-          (platLocation = docPlat.localisation),
-            (PlatDescription = docPlat.description);
-          const commandedata = {
-            ..._data,
-            key,
-            normalDate,
-            imagePlat,
-            cookerInfo,
-            platLocation,
-            PlatDescription
-          };
-          if (normalDate.isRecent) {
-            recents.push(commandedata);
-          } else {
-            ancs.push(commandedata);
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
-      if (last_query_id == key) {
-        console.log("dernier ellement");
-        this.setState({ data: { recents, ancs }, loading: false });
-      }
-    });
+
+    const last_query_id =
+      querySnapshot.docs.length != 0
+        ? querySnapshot.docs[querySnapshot.size - 1].id
+        : null;
+
+    if (last_query_id) {
+      await querySnapshot.forEach(async doc => {
+        const _data = doc.data();
+        const normalDate = convertDate(_data.datePlaced.toDate());
+        const key = doc.id;
+        let imagePlat = [];
+        let cookerInfo = {};
+        let platLocation = [];
+        let PlatDescription = "";
+        await this.refPlat
+          .doc(_data.platKey)
+          .get()
+          .then(docP => {
+            docPlat = docP.data();
+            imagePlat = docPlat.pictures;
+            cookerInfo = { photo: docPlat.userphoto, name: docPlat.username };
+            (platLocation = docPlat.localisation),
+              (PlatDescription = docPlat.description);
+            const commandedata = {
+              ..._data,
+              key,
+              normalDate,
+              imagePlat,
+              cookerInfo,
+              platLocation,
+              PlatDescription
+            };
+            if (normalDate.isRecent) {
+              recents.push(commandedata);
+            } else {
+              ancs.push(commandedata);
+            }
+          })
+          .catch(error => {
+            console.log(error);
+          });
+        recents
+          .sort(function(a, b) {
+            return (
+              a.normalDate.datefull.getTime() - b.normalDate.datefull.getTime()
+            );
+          })
+          .reverse();
+        ancs
+          .sort(function(a, b) {
+            return (
+              a.normalDate.datefull.getTime() - b.normalDate.datefull.getTime()
+            );
+          })
+          .reverse();
+        if (last_query_id == key) {
+          console.log("dernier ellement");
+          this.setState({ data: { recents, ancs }, loading: false });
+        }
+      });
+    } else {
+      this.setState({ loading: false });
+    }
   };
   componentDidMount() {
     this.unsubscribe = this.refOrders.get().then(doc => {

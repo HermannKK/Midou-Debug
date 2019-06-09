@@ -38,6 +38,13 @@ class Notifications extends React.Component {
       const normalDate = convertDate(_data.date.toDate());
       data.push({ ..._data, key, normalDate });
     });
+    data
+      .sort(function(a, b) {
+        return (
+          a.normalDate.datefull.getTime() - b.normalDate.datefull.getTime()
+        );
+      })
+      .reverse();
     this.setState({ data, loading: false });
   };
 
@@ -76,7 +83,11 @@ class Notifications extends React.Component {
         {this.state.loading ? (
           <ActivityIndicator size="large" color="#F1592A" />
         ) : this.state.data.length == 0 ? (
-          <Text>Vous n'avez aucune notification</Text>
+          <View style={styles.Nocommande}>
+            <Text style={styles.textStyle}>
+              Vous n'avez aucune notification{" "}
+            </Text>
+          </View>
         ) : (
           <ScrollView>
             <FlatList
@@ -138,6 +149,13 @@ const styles = StyleSheet.create({
   iconStyle: {
     fontSize: 20,
     color: "#bdc3c7"
+  },
+  Nocommande: { justifyContent: "center", alignItems: "center", flex: 1 },
+  textStyle: {
+    padding: 15,
+    fontSize: 20,
+    textAlignVertical: "center",
+    textAlign: "center"
   }
 });
 

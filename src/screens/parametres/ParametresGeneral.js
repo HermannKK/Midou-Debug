@@ -12,7 +12,6 @@ import {
 import ImagePicker from "react-native-image-crop-picker";
 import { connect } from "react-redux";
 import { changeUserdataInGlobal } from "../../Store/Reducers/userProfilReducer";
-import AsyncImage from "../../AsyncImage";
 
 export const uploadImage = (path, mime = "image/png") => {
   return new Promise((resolve, reject) => {
@@ -293,13 +292,13 @@ const styles = StyleSheet.create({
     borderColor: "#95a5a6",
     borderBottomWidth: 1,
     textAlign: "justify",
-    fontWeight: "bold"
+    // fontWeight: "bold"
   },
   logout: {
     paddingTop: 20,
     marginLeft: 15,
     marginRight: 15,
-    fontSize: 18,
+    fontSize: 15,
     // color: "black",
     // fontWeight: "500",
     color: "#95a5a6"

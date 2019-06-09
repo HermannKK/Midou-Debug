@@ -12,6 +12,7 @@ import {
 import SliderImage from "../othersComponents/SliderImage";
 import MapPosition from "../othersComponents/MapPosition";
 import firebase from "react-native-firebase";
+import { color} from "../home/MapComponents/MyData/Mydata";
 class OneCommandeSelected extends React.Component {
   constructor(props) {
     super(props);
@@ -32,7 +33,7 @@ class OneCommandeSelected extends React.Component {
           <Icon
             name="star"
             type="AntDesign"
-            style={{ color: "yellow", fontSize: size }}
+            style={{ color: "#f1c40f", fontSize: size }}
             key={i.toString()}
             onPress={() => {
               if (note) this.setState({ note: i + 1 });
@@ -44,7 +45,7 @@ class OneCommandeSelected extends React.Component {
           <Icon
             name="star"
             type="AntDesign"
-            style={{ color: "white", fontSize: size }}
+            style={{ color: "#ecf0f1", fontSize: size }}
             key={i.toString()}
             onPress={() => {
               if (note) this.setState({ note: i + 1 });
@@ -179,7 +180,7 @@ class OneCommandeSelected extends React.Component {
               )}
               <View style={styles.mpConatiner}>
                 <Icon
-                  name="cash-multiple"
+                  name="cash"
                   type="MaterialCommunityIcons"
                   style={styles.mpIcon}
                 />
@@ -202,9 +203,6 @@ class OneCommandeSelected extends React.Component {
                   title={"Vos repas"}
                   image={data.imagePlat[0]}
                 />
-                <Text>
-                  ({data.platLocation.latitude} ; {data.platLocation.longitude})
-                </Text>
               </View>
 
               <View style={styles.iaContainair}>
@@ -229,7 +227,7 @@ class OneCommandeSelected extends React.Component {
                   </View>
                 </View>
                 <View style={styles.etoileView}>
-                  {this.renduEtoile(5, 17, false)}
+                  {this.renduEtoile(5, 16, false)}
                 </View>
               </View>
               {data.note == (null || undefined) && (
@@ -246,7 +244,7 @@ class OneCommandeSelected extends React.Component {
                       if (this.state.note > 0) this.updateBoard(data.key);
                     }}
                   >
-                    ENVOYER
+                    Envoyer
                   </Text>
                 </View>
               )}
@@ -257,14 +255,14 @@ class OneCommandeSelected extends React.Component {
                   </Text>
                 </View>
               )}
-              <View style={styles.bvRjectContainer}>
+              {/* <View style={styles.bvRjectContainer}>
                 <Text
                   style={{ color: "red" }}
                   //   onPress={() => this.setState({ showValidateReject: true })}
                 >
-                  SIGNALER UN PROBLEME
+                  Signaler
                 </Text>
-              </View>
+              </View> */}
             </View>
           </ScrollView>
         ) : (
@@ -278,7 +276,8 @@ class OneCommandeSelected extends React.Component {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "#ecf0f1"
+    // backgroundColor: "#ecf0f1"
+    backgroundColor: "#fff"
   },
   alldetailsCon: {
     paddingBottom: 15
@@ -326,7 +325,7 @@ const styles = StyleSheet.create({
   mpIcon: { color: "#a4b0be", fontSize: 30 },
   mpText: {
     fontSize: 18,
-    fontWeight: "bold",
+    // fontWeight: "bold",
     color: "#a4b0be",
     paddingLeft: 10
   },
@@ -345,7 +344,7 @@ const styles = StyleSheet.create({
     paddingRight: 15
   },
   tvTotalPrice: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "200",
     color: "black"
   },
@@ -355,9 +354,9 @@ const styles = StyleSheet.create({
   },
   tvMad: { fontSize: 20, color: "#a4b0be" },
   tvPrice: {
-    fontSize: 25,
+    fontSize: 22,
     fontWeight: "bold",
-    color: "black"
+    color: color.orange
   },
   tvIcon: { color: "#a4b0be", fontSize: 25 },
   iaContainair: {
@@ -383,7 +382,7 @@ const styles = StyleSheet.create({
     alignItems: "center"
   },
   contNotecuisto: {
-    backgroundColor: "#2ed573",
+    // backgroundColor: "#2ed573",
     marginLeft: 15,
     marginRight: 15,
     borderRadius: 5
@@ -392,7 +391,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     fontSize: 19,
     marginBottom: 10,
-    color: "#fff",
+    color: color.orange,
     textAlign: "center",
     textAlignVertical: "center",
     marginTop: 10
