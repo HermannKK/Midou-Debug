@@ -7,7 +7,8 @@ import {
   View,
   ToastAndroid,
   Text,
-  StyleSheet
+  StyleSheet,
+  Linking
 } from "react-native";
 import ImagePicker from "react-native-image-crop-picker";
 import { connect } from "react-redux";
@@ -186,7 +187,7 @@ class ParametresGeneral extends React.Component {
   signOut = async () => {
     try {
       await firebase.auth().signOut();
-      this.props.navigation.navigate("LoggedOut");
+      this.props.navigation.navigate("Step1");
     } catch (e) {
       console.log(e);
     }
@@ -219,7 +220,14 @@ class ParametresGeneral extends React.Component {
           <Text style={styles.textInGen}>
             {this.props.userProfil.user_phoneNumber}
           </Text>
-          <Text style={styles.logout}>Conditions génerales</Text>
+          <Text
+            style={styles.logout}
+            onPress={() => {
+              Linking.openURL("http://midou.strikingly.com");
+            }}
+          >
+            Conditions génerales
+          </Text>
           <Text style={styles.logout}>Evaluer l'application</Text>
           <Text
             style={styles.logout}
@@ -291,7 +299,7 @@ const styles = StyleSheet.create({
     color: "black",
     borderColor: "#95a5a6",
     borderBottomWidth: 1,
-    textAlign: "justify",
+    textAlign: "justify"
     // fontWeight: "bold"
   },
   logout: {

@@ -60,7 +60,7 @@ class TextButton extends React.Component {
           activeOpacity={0.8}
           style={styles.containBouton}
           onPress={() => {
-            Linking.openURL("http://midou.strikingly.com/#contactez-nous");
+            Linking.openURL("http://midou.strikingly.com/#devenir-patron");
           }}
         >
           <Text style={styles.BoutonText}>Devenir patron</Text>

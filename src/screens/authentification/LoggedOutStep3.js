@@ -244,7 +244,7 @@ class LoggedOutStep3 extends React.Component {
     //   this.props
     // );
     if (this.validURL(this.profile.ProfileUser)) {
-      this.setState({ loading: false });
+      // this.setState({ loading: false });
       this.props.navigation.navigate("Drawer");
     } else {
       firebase

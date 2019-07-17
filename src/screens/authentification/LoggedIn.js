@@ -16,6 +16,10 @@ import NavParametres from "../parametres/NavParametres";
 import NavNotifications from "../notifications/NavNotifications";
 import NavPoster from "../annonces/NavPoster";
 import CustomDrawerContentComponent from "../othersComponents/CustomDrawerContentComponent";
+
+// for inscription
+import LoggedOutStep1 from "./LoggedOutStep1";
+import LoggedOutStep2 from "./LoggedOutStep2";
 //FinComponents
 
 const _DrawerCuisinier = createDrawerNavigator(
@@ -68,7 +72,9 @@ const Stack = createStackNavigator(
   {
     Home: { screen: Home },
     Drawer: DrawerCuisinier,
-    Step3: { screen: LoggedOutStep3 }
+    Step1: { screen: LoggedOutStep1 },
+    Step2: { screen: LoggedOutStep2 },
+    Step3: { screen: LoggedOutStep3 },
   },
   {
     initialRouteName: _initialRoute,

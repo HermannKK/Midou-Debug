@@ -50,9 +50,7 @@ class LoggedOutStep2 extends React.Component {
     this.confirmResult
       .confirm(code)
       .then(user => {
-        console.log(user);
         this.setState({ isNotValidePass: false });
-        console.log(this.state.credential);
         this.props.navigation.navigate("Step3");
       })
       .catch(error => {

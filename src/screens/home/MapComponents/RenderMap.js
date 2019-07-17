@@ -20,6 +20,7 @@ import StoryFood from "./StoryFood";
 import { dataFood, color } from "./MyData/Mydata";
 import { convertDate } from "../../../functionsRu/groupeA";
 import firebase from "react-native-firebase";
+import { NavigationEvents } from "react-navigation";
 Mapbox.setAccessToken(
   "pk.eyJ1IjoiYWxpbm8xOTk4IiwiYSI6ImNqcHdvdG13ZjBkb280OHIxZTV6dDVvOWUifQ.IqCLhCar6dlPsSXwPQbE3A"
 );
@@ -52,7 +53,6 @@ class RenderMap extends Component {
       .firestore()
       .collection("PlatPost")
       .where("active", "==", true);
-    console.log(ref);
     this.unsubscribe = await ref.onSnapshot(this.parseData);
     await this.setState({ loading: false });
   };
@@ -61,12 +61,13 @@ class RenderMap extends Component {
       let _data = doc.data();
       let key = doc.id;
       let normalDate = convertDate(_data.date.toDate());
-      await this.data.push({ ..._data, key, normalDate });
+      if (typeof _data.dataPosition != "undefined") {
+        await this.data.push({ ..._data, key, normalDate });
+      }
     });
     console.log(this.data);
     await this.setState({ data: this.data });
   };
-
 
   animToLocation = props => {
     Animated.timing(this.state.animToReturnLocation, {
@@ -251,10 +252,6 @@ class RenderMap extends Component {
   componentDidMount() {
     this.getData();
     this.takeUserPosition();
-    this.backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      this.handleBackButton
-    );
   }
 
   // shouldComponentUpdate(prevProps, prevState) {
@@ -266,26 +263,37 @@ class RenderMap extends Component {
   //   return true;
   // }
 
-  // componentWillUnmount(){
-  //   this.unsubscribe()
-  // }
-
   componentWillUnmount() {
+    this.unsubscribe();
     this.backHandler.remove();
   }
 
   handleBackButton = async () => {
     if (this.state.showStoryFood) {
       this.bulleStoryEventClick();
-    } else BackHandler.exitApp();
+    } else {
+      BackHandler.exitApp();
+    }
     return true;
   };
 
   render() {
-    console.log(this.state.data);
+    // console.log(this.state.data);
     return (
-      <View style={styles.container}>
+      <View style={[styles.container,{backgroundColor:'#000'}]}>
         {this.props.children}
+        <NavigationEvents
+          onDidFocus={payload => {
+            this.backHandler = BackHandler.addEventListener(
+              "hardwareBackPress",
+              this.handleBackButton
+            );
+          }}
+          onDidBlur={payload => {
+            this.backHandler.remove();
+          }}
+        />
+        <StatusBar backgroundColor="#d35400" barStyle="light-content" />
         <Mapbox.MapView
           styleURL={Mapbox.StyleURL.Dark}
           zoomLevel={14}

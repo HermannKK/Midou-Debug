@@ -41,7 +41,7 @@ class TestBulle extends Component {
                 />
               </View>
               <View style={styles.conatinerGlobalDescription}>
-                <Text style={styles.mainTextStyle}>
+                <Text style={styles.mainTextStyle} numberOfLines={1}>
                   {this.state.info.name}
                 </Text>
                 <Text style={styles.infoTextStyle}>

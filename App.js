@@ -11,6 +11,7 @@ export default class App extends React.Component {
     this.state = {};
   }
   render() {
+    console.disableYellowBox = true
     return (
       <Root>
         <Setup />

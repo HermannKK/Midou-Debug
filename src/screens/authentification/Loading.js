@@ -1,32 +1,20 @@
 import React from "react";
-import {
-  View,
-  ActivityIndicator,
-  StyleSheet,
-  Image,
-  ImageBackground,
-  StatusBar
-} from "react-native";
+import { ActivityIndicator, StyleSheet, Image } from "react-native";
+import LinearGradient from "react-native-linear-gradient";
 export default class Loading extends React.Component {
   render() {
     return (
-      <View style={styles.container}>
-        <ImageBackground
-          source={require("./assets/splash.png")}
+      <LinearGradient style={styles.container} colors={["#e67e22", "#EE5A24"]}>
+        <Image
+          source={require("./assets/LO.png")}
           style={{
-            width: "100%",
-            height: "100%",
-            justifyContent: "center",
-            alignItems: "center"
+            height: 80,
+            width: 80,
+            resizeMode: "cover",
+            marginBottom: 0
           }}
-        >
-          <Image
-            source={require("./assets/LO.png")}
-            style={{ height: 100, width: 100, resizeMode: "cover", marginBottom: 100 }}
-          />
-          <ActivityIndicator size="large" color="white" />
-        </ImageBackground>
-      </View>
+        />
+      </LinearGradient>
     );
   }
 }
@@ -34,7 +22,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    backgroundColor:"#EE5A24"
+    alignItems: "center"
   }
 });

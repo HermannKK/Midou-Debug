@@ -6,13 +6,15 @@ import {
   StatusBar,
   Image,
   TextInput,
-  TouchableOpacity
+  TouchableOpacity,
+  BackHandler
 } from "react-native";
 import { Icon } from "native-base";
 import {
   getCountryFromAPiWhenReseacrch,
   getFlagOnCountry
 } from "./restcountriesAPI";
+import { NavigationEvents } from "react-navigation";
 
 class LoggedOutStep1 extends React.Component {
   constructor(props) {
@@ -47,6 +49,15 @@ class LoggedOutStep1 extends React.Component {
     }
   };
 
+  handleBackButton = async () => {
+    if (this.state.showNumIns) {
+      this.setState({showNumIns:false})
+    } else {
+      BackHandler.exitApp();
+    }
+    return true;
+  };
+
   componentDidMount() {
     this._getCountry();
   }
@@ -54,14 +65,26 @@ class LoggedOutStep1 extends React.Component {
   render() {
     return (
       <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }} enabled>
+        <NavigationEvents
+          onDidFocus={payload => {
+            this.backHandler = BackHandler.addEventListener(
+              "hardwareBackPress",
+              this.handleBackButton
+            );
+          }}
+          onDidBlur={payload => {
+            this.backHandler.remove();
+          }}
+        />
         <StatusBar backgroundColor="#EE5A24" barStyle="light-content" />
         {this.state.donnepays != null && (
           <View style={{ flex: 1, justifyContent: "space-between"}}>
             {!this.state.showNumIns ? (
               <View style={{ flex: 4, alignItems: "center", marginBottom: 10 }}>
                 <Image
-                  style={{ flex: 1, width: 400, height: 200 }}
-                  source={require("./assets/PremierPas.jpg")}
+                  style={{ flex: 1, width: 400, height: 600 }}
+                  source={require("./assets/g3.jpg")}
+                  // resizeMode={'cover'}
                 />
               </View>
             ) : (
